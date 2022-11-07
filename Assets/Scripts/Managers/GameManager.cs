@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using IA.Agents;
+using IA.Gameplay;
+using IA.Configurations;
 
 namespace IA.Managers
 {
     public class GameManager : MonoBehaviour
     {
 
+        [SerializeField] private TerrainConfiguration terrainConfiguration = default;
+        
         public static GameManager Instance { get; private set; } = null;
 
         public bool Simulating { get; set; } = false;
@@ -50,6 +53,10 @@ namespace IA.Managers
         private void Start()
         {
             _timeManager.onActionTimeReached += StartAllAgentsMovingTime;
+            
+            terrainConfiguration.CreateTerrain();
+            terrainConfiguration.CreateAgents();
+            terrainConfiguration.CreateFood();
         }
 
         private void OnDestroy()
