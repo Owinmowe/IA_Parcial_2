@@ -1,6 +1,8 @@
 using System;
+using IA.Configurations;
+using UnityEngine;
 
-namespace IA.Agents
+namespace IA.Gameplay
 {
     public interface IAgent
     {
