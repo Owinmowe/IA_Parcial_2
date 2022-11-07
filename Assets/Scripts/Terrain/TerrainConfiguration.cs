@@ -22,8 +22,9 @@ namespace IA.Configurations
         [SerializeField] private Food foodPrefab = default;
         [SerializeField] private Vector3 foodSpawnOffset = Vector3.zero;
 
-        private List<Vector2Int> _agentsPositions;
-        private List<Vector2Int> _foodPositions;
+        private List<Agent> _topAgentsList;
+        private List<Agent> _botAgentsList;
+        private List<Food> _foodList;
 
         private void OnValidate()
         {
@@ -53,6 +54,10 @@ namespace IA.Configurations
 
         public void CreateAgents()
         {
+            
+            _botAgentsList.Clear();
+            _botAgentsList = new List<Agent>(agentAmount);
+            
             List<int> possiblePositions = new List<int>(terrainCount.x);
             for (int i = 0; i < terrainCount.x; i++)
             {
@@ -77,9 +82,13 @@ namespace IA.Configurations
 
                 agent.SetTerrainConfiguration(positionInt, this);
                 
-                _agentsPositions.Add(positionInt);
+                _botAgentsList.Add(agent);
             }
 
+            
+            _topAgentsList.Clear();
+            _topAgentsList = new List<Agent>(agentAmount);
+            
             possiblePositions.Clear();
             for (int i = 0; i < terrainCount.x; i++)
             {
@@ -103,15 +112,15 @@ namespace IA.Configurations
                 };
                 
                 agent.SetTerrainConfiguration(positionInt, this);
-                _agentsPositions.Add(positionInt);
+                _topAgentsList.Add(agent);
             }
             
         }
 
         public void CreateFood()
         {
-            _foodPositions.Clear();
-            _foodPositions = new List<Vector2Int>(agentAmount * 2);
+            _foodList.Clear();
+            _foodList = new List<Food>(agentAmount * 2);
             for (int i = 0; i < agentAmount * 2; i++)
             {
                 Vector3 position = Vector3.zero;
@@ -121,15 +130,14 @@ namespace IA.Configurations
                     y = Random.Range(1, terrainCount.y - 1)
                 };
 
-                if (!_foodPositions.Contains(intPosition))
+                if (!_foodList.Exists(food => food.CurrentPosition == intPosition))
                 {
-                    _foodPositions.Add(intPosition);
-                    
                     position.x = eachTerrainSize.x * intPosition.x;
                     position.z = eachTerrainSize.z * intPosition.y;
                     position += foodSpawnOffset;
+                    var food = Instantiate(foodPrefab, position, Quaternion.identity);
                     
-                    Instantiate(foodPrefab, position, Quaternion.identity);
+                    _foodList.Add(food);
                 }
                 else
                 {
@@ -138,11 +146,30 @@ namespace IA.Configurations
             }
         }
 
+        public void ClearAllAgentsAndFood()
+        {
+            foreach (var food in _foodList)
+            {
+                Destroy(food.gameObject);
+            }
+            _foodList.Clear();
+            
+            foreach (var botAgent in _botAgentsList)
+            {
+                Destroy(botAgent.gameObject);
+            }
+            _botAgentsList.Clear();
+            
+            foreach (var topAgent in _topAgentsList)
+            {
+                Destroy(topAgent.gameObject);
+            }
+            _topAgentsList.Clear();
+        }
+        
         public Vector3 GetPostMovementPosition(Agent agent, Movement.MoveDirection direction)
         {
-            int agentIndex = _agentsPositions.FindIndex(i=> i == agent.CurrentPosition);
-
-            var positionInt = _agentsPositions[agentIndex];
+            var positionInt = agent.CurrentPosition;
             
             switch (direction)
             {
@@ -154,7 +181,7 @@ namespace IA.Configurations
                     break;
                 
                 case Movement.MoveDirection.Up:
-                    if (positionInt.y < terrainCount.y)
+                    if (positionInt.y < terrainCount.y - 1)
                     {
                         positionInt.y++;
                     }
@@ -177,7 +204,6 @@ namespace IA.Configurations
                 z = positionInt.y * eachTerrainSize.z
             };
 
-            _agentsPositions[agentIndex] = positionInt;
             agent.CurrentPosition = positionInt;
             
             return position;

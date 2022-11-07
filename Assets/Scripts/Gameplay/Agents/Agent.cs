@@ -40,7 +40,6 @@ namespace IA.Gameplay
 
         public void StartActing()
         {
-            Debug.Log(gameObject.name + ": Act Start");
             OnAgentStopActing?.Invoke();
         }
 

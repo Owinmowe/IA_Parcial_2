@@ -24,6 +24,9 @@ namespace IA.Managers
                 _timeManager.TimeBetweenTicks = 1.0f / _simulationSpeed;
             }
         }
+
+        public int TurnsPerGeneration { get; set; } = 30;
+        
         private float _simulationSpeed = 1f;
         
         private Action _onMoveAllGrid;
@@ -34,6 +37,7 @@ namespace IA.Managers
         private List<IAgent> _agentsList = new List<IAgent>();
         private int _movedAgentsCount = 0;
         private int _actedAgentsCount = 0;
+        private int _currentTurn = 0;
 
         private void Awake()
         {
@@ -102,6 +106,17 @@ namespace IA.Managers
         {
             _actedAgentsCount++;
             if (_actedAgentsCount < _agentsList.Count) return;
+
+            _currentTurn++;
+            if (_currentTurn == TurnsPerGeneration)
+            {
+                _currentTurn = 0;
+                    
+                terrainConfiguration.ClearAllAgentsAndFood();
+                    
+                terrainConfiguration.CreateAgents();
+                terrainConfiguration.CreateFood();
+            }
         }
         
         
