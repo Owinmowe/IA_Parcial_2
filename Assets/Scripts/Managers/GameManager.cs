@@ -10,11 +10,13 @@ namespace IA.Managers
     {
 
         [SerializeField] private TerrainConfiguration terrainConfiguration = default;
+        [SerializeField] private GenomeData genomeData = default;
         
         public static GameManager Instance { get; private set; } = null;
-
+        
+        public bool Started { get; set; }
         public bool Simulating { get; set; } = false;
-
+        
         public float SimulationSpeed
         {
             get => _simulationSpeed;
@@ -33,10 +35,9 @@ namespace IA.Managers
         private Action _onActionAllGrid;
 
         private TimeManager _timeManager;
-
-        private List<IAgent> _agentsList = new List<IAgent>();
-        private int _movedAgentsCount = 0;
-        private int _actedAgentsCount = 0;
+        private AgentsManager _agentsManager;
+        private GenerationManager _generationManager;
+        
         private int _currentTurn = 0;
 
         private void Awake()
@@ -52,64 +53,88 @@ namespace IA.Managers
             }
             
             _timeManager = new TimeManager();
+            _agentsManager = new AgentsManager();
+            _generationManager = new GenerationManager();
         }
 
         private void Start()
         {
             _timeManager.onActionTimeReached += StartAllAgentsMovingTime;
             
-            terrainConfiguration.CreateTerrain();
-            terrainConfiguration.CreateAgents();
-            terrainConfiguration.CreateFood();
+            _agentsManager.onAllAgentsStoppedMoving += StartAllAgentsActionTime;
+            _agentsManager.onAllAgentsStoppedActing += AllAgentsStoppedActing;
         }
-
+        private void Update()
+        {
+            if (Simulating && Started) _timeManager.Update(Time.deltaTime);
+        }
         private void OnDestroy()
         {
             _timeManager.onActionTimeReached -= StartAllAgentsMovingTime;
         }
 
-        private void Update()
+        
+        public void StartSimulation()
         {
-            if (Simulating) _timeManager.Update(Time.deltaTime);
+            Started = true;
+            Simulating = true;
+            
+            terrainConfiguration.CreateTerrain();
+            terrainConfiguration.CreateAgents();
+            terrainConfiguration.CreateFood();
+            
+            var botAgents = terrainConfiguration.BotAgentList;
+            foreach (var agent in botAgents)
+            {
+                _generationManager.CreateAgentBrains(agent, genomeData);
+            }
+            
+            var topAgents = terrainConfiguration.TopAgentList;
+            foreach (var agent in topAgents)
+            {
+                _generationManager.CreateAgentBrains(agent, genomeData);
+            }
+        }
+        
+        public void StopSimulation()
+        {
+            Started = false;
+            Simulating = false;
+            terrainConfiguration.ClearAllAgentsAndFood();
+        }
+
+        public float[] GetInputs(Agent agent)
+        {
+            var inputs = new float[4];
+
+            var closestFoodPosition = terrainConfiguration.GetClosestFood(agent.CurrentPosition);
+
+            inputs[0] = agent.CurrentPosition.x;
+            inputs[1] = agent.CurrentPosition.y;
+            inputs[2] = closestFoodPosition.x;
+            inputs[3] = closestFoodPosition.y;
+            
+            return inputs;
         }
         
         private void StartAllAgentsMovingTime()
         {
             _onMoveAllGrid?.Invoke();
-
-            _movedAgentsCount = 0;
-            foreach (var agent in _agentsList)
-            {
-                agent.StartMoving();
-            }
+            _agentsManager.StartAllAgentsMoving();
         }
         
-        private void AgentStoppedMoving()
-        {
-            _movedAgentsCount++;
-            if (_movedAgentsCount < _agentsList.Count) return;
-            StartAllAgentsActionTime();
-        }
-
         private void StartAllAgentsActionTime()
         {
             _onActionAllGrid?.Invoke();
-
-            _actedAgentsCount = 0;
-            foreach (var agent in _agentsList)
-            {
-                agent.StartActing();
-            }
+            _agentsManager.StartAllAgentsActing();
         }
         
-        private void AgentStoppedActing()
+        private void AllAgentsStoppedActing()
         {
-            _actedAgentsCount++;
-            if (_actedAgentsCount < _agentsList.Count) return;
-
             _currentTurn++;
             if (_currentTurn == TurnsPerGeneration)
             {
+                Debug.Log(_currentTurn);
                 _currentTurn = 0;
                     
                 terrainConfiguration.ClearAllAgentsAndFood();
@@ -119,20 +144,8 @@ namespace IA.Managers
             }
         }
         
-        
-        public void RegisterAgent(IAgent agent)
-        {
-            _agentsList.Add(agent);
-            agent.OnAgentStopMoving += AgentStoppedMoving;
-            agent.OnAgentStopActing += AgentStoppedActing;
-        }
-        
-        public void UnRegisterAgent(IAgent agent)
-        {
-            agent.OnAgentStopMoving -= AgentStoppedMoving;
-            agent.OnAgentStopActing -= AgentStoppedActing;
-            _agentsList.Remove(agent);
-        }
-        
+        public void RegisterAgent(IAgent agent) => _agentsManager.RegisterAgent(agent);
+        public void UnRegisterAgent(IAgent agent) => _agentsManager.UnRegisterAgent(agent);
+
     }
 }

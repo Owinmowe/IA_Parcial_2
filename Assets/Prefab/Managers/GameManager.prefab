@@ -45,3 +45,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainConfiguration: {fileID: 11400000, guid: 50797f6e66c319c4687603cab54b4839, type: 2}
+  genomeData:
+    mutationChance: 0.1
+    mutationRate: 0.01
+    genome: []
+    inputsCount: 4
+    hiddenLayers: 4
+    outputsCount: 2
+    neuronCountPerHiddenLayer: 50
+    bias: 0
+    sigmoid: 0

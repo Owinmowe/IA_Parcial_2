@@ -21,9 +21,10 @@ namespace IA.Configurations
         [Header("Food")] 
         [SerializeField] private Food foodPrefab = default;
         [SerializeField] private Vector3 foodSpawnOffset = Vector3.zero;
+        
+        public List<Agent> TopAgentList { get; private set; }
+        public List<Agent> BotAgentList { get; private set; }
 
-        private List<Agent> _topAgentsList;
-        private List<Agent> _botAgentsList;
         private List<Food> _foodList;
 
         private void OnValidate()
@@ -55,8 +56,8 @@ namespace IA.Configurations
         public void CreateAgents()
         {
             
-            _botAgentsList.Clear();
-            _botAgentsList = new List<Agent>(agentAmount);
+            BotAgentList.Clear();
+            BotAgentList = new List<Agent>(agentAmount);
             
             List<int> possiblePositions = new List<int>(terrainCount.x);
             for (int i = 0; i < terrainCount.x; i++)
@@ -82,12 +83,12 @@ namespace IA.Configurations
 
                 agent.SetTerrainConfiguration(positionInt, this);
                 
-                _botAgentsList.Add(agent);
+                BotAgentList.Add(agent);
             }
 
             
-            _topAgentsList.Clear();
-            _topAgentsList = new List<Agent>(agentAmount);
+            TopAgentList.Clear();
+            TopAgentList = new List<Agent>(agentAmount);
             
             possiblePositions.Clear();
             for (int i = 0; i < terrainCount.x; i++)
@@ -112,7 +113,7 @@ namespace IA.Configurations
                 };
                 
                 agent.SetTerrainConfiguration(positionInt, this);
-                _topAgentsList.Add(agent);
+                TopAgentList.Add(agent);
             }
             
         }
@@ -154,17 +155,17 @@ namespace IA.Configurations
             }
             _foodList.Clear();
             
-            foreach (var botAgent in _botAgentsList)
+            foreach (var botAgent in BotAgentList)
             {
                 Destroy(botAgent.gameObject);
             }
-            _botAgentsList.Clear();
+            BotAgentList.Clear();
             
-            foreach (var topAgent in _topAgentsList)
+            foreach (var topAgent in TopAgentList)
             {
                 Destroy(topAgent.gameObject);
             }
-            _topAgentsList.Clear();
+            TopAgentList.Clear();
         }
         
         public Vector3 GetPostMovementPosition(Agent agent, Movement.MoveDirection direction)
@@ -207,6 +208,23 @@ namespace IA.Configurations
             agent.CurrentPosition = positionInt;
             
             return position;
+        }
+
+        public Vector2Int GetClosestFood(Vector2Int agentPosition)
+        {
+            Vector2Int closestFood = new Vector2Int(terrainCount.x + 1, terrainCount.y + 1);
+            int manhattanDistance = closestFood.x + closestFood.y;
+
+            foreach (var food in _foodList)
+            {
+                var newPosition = food.CurrentPosition;
+                if (newPosition.x + newPosition.y < manhattanDistance)
+                {
+                    closestFood = newPosition;
+                }
+            }
+
+            return closestFood;
         }
         
         private void ShuffleList<T> (List<T> list)

@@ -1,6 +1,4 @@
 using System;
-using IA.Configurations;
-using UnityEngine;
 
 namespace IA.Gameplay
 {
@@ -10,5 +8,6 @@ namespace IA.Gameplay
         Action OnAgentStopMoving { get; set; }
         void StartActing();
         Action OnAgentStopActing { get; set; }
+        void Think();
     }
 }
