@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using IA.Gameplay;
+using Random = UnityEngine.Random;
 
 namespace IA.Configurations
 {
@@ -207,19 +209,21 @@ namespace IA.Configurations
 
         public Vector2Int GetClosestFood(Vector2Int agentPosition)
         {
-            Vector2Int closestFood = new Vector2Int(terrainCount.x + 1, terrainCount.y + 1);
-            int manhattanDistance = closestFood.x + closestFood.y;
+            Vector2Int closestFoodPosition = agentPosition;
+            int closestFoodDistance = terrainCount.x + terrainCount.y + 1;
 
             foreach (var food in _foodList)
             {
                 var newPosition = food.CurrentPosition;
-                if (newPosition.x + newPosition.y < manhattanDistance)
+                int newClosestFoodDistance = GetManhattanDistance(agentPosition, newPosition);
+                if (newClosestFoodDistance < closestFoodDistance)
                 {
-                    closestFood = newPosition;
+                    closestFoodDistance = newClosestFoodDistance;
+                    closestFoodPosition = newPosition;
                 }
             }
 
-            return closestFood;
+            return closestFoodPosition;
         }
         
         private void ShuffleList<T> (List<T> list)
@@ -231,6 +235,11 @@ namespace IA.Configurations
                 var r = Random.Range(i, count);
                 (list[i], list[r]) = (list[r], list[i]);
             }
+        }
+
+        private int GetManhattanDistance(Vector2Int from, Vector2Int to)
+        {
+            
         }
         
     }
