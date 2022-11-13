@@ -60,6 +60,17 @@ namespace IA.UI
                 GameManager.Instance.SimulationSpeed = value;
                 simulationSpeedText.text = "Simulation Speed: " + GameManager.Instance.SimulationSpeed;
             });
+            
+            GameManager.Instance.OnTurnEnd += delegate(int i)
+            {
+                currentTurnText.text = "Current Turn: " + i;
+            };
+            
+            GameManager.Instance.OnGenerationEnd += delegate(int i)
+            {
+                currentGenerationText.text = "Current Generation: " + i;
+            };
+            
         }
     }
 }
