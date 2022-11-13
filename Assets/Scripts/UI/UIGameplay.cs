@@ -26,8 +26,8 @@ namespace IA.UI
             
             playPauseButton.onClick.AddListener(delegate
             {
-                GameManager.Instance.Simulating = !GameManager.Instance.Simulating;
-                playPauseButtonText.text = GameManager.Instance.Simulating ? "Pause Simulation" : "Resume Simulation";
+                GameManager.Instance.Paused = !GameManager.Instance.Paused;
+                playPauseButtonText.text = GameManager.Instance.Paused ? "Resume Simulation" : "Pause Simulation";
             });
             
             stopSimulationButton.onClick.AddListener(delegate

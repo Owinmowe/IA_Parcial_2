@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using IA.Gameplay;
 using IA.Configurations;
+using Unity.VisualScripting;
 
 namespace IA.Managers
 {
@@ -10,12 +10,16 @@ namespace IA.Managers
     {
 
         [SerializeField] private TerrainConfiguration terrainConfiguration = default;
-        [SerializeField] private GenomeData genomeData = default;
-        
+
+        public TerrainConfiguration TerrainConfig => terrainConfiguration;
+
+        public GenomeData RedGenomeData { get; private set; } = new GenomeData();
+        public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
+
         public static GameManager Instance { get; private set; } = null;
-        
-        public bool Started { get; set; }
-        public bool Simulating { get; set; } = false;
+
+        public bool Started { get; private set; } = false;
+        public bool Paused { get; set; } = true;
         
         public float SimulationSpeed
         {
@@ -59,6 +63,13 @@ namespace IA.Managers
 
         private void Start()
         {
+
+            GameObject terrainParent = new GameObject();
+            terrainParent.transform.SetParent(transform);
+            terrainParent.name = "Terrain Parent";
+            
+            terrainConfiguration.CreateTerrain(terrainParent.transform);
+            
             _timeManager.onActionTimeReached += StartAllAgentsMovingTime;
             
             _agentsManager.onAllAgentsStoppedMoving += StartAllAgentsActionTime;
@@ -66,7 +77,7 @@ namespace IA.Managers
         }
         private void Update()
         {
-            if (Simulating && Started) _timeManager.Update(Time.deltaTime);
+            if (!Paused && Started) _timeManager.Update(Time.deltaTime);
         }
         private void OnDestroy()
         {
@@ -77,29 +88,28 @@ namespace IA.Managers
         public void StartSimulation()
         {
             Started = true;
-            Simulating = true;
+            Paused = false;
             
-            terrainConfiguration.CreateTerrain();
             terrainConfiguration.CreateAgents();
             terrainConfiguration.CreateFood();
             
             var botAgents = terrainConfiguration.BotAgentList;
             foreach (var agent in botAgents)
             {
-                _generationManager.CreateAgentBrains(agent, genomeData);
+                _generationManager.CreateAgentBrains(agent, GreenGenomeData);
             }
             
             var topAgents = terrainConfiguration.TopAgentList;
             foreach (var agent in topAgents)
             {
-                _generationManager.CreateAgentBrains(agent, genomeData);
+                _generationManager.CreateAgentBrains(agent, RedGenomeData);
             }
         }
         
         public void StopSimulation()
         {
             Started = false;
-            Simulating = false;
+            Paused = true;
             terrainConfiguration.ClearAllAgentsAndFood();
         }
 

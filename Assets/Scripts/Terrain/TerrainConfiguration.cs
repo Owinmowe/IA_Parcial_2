@@ -24,9 +24,9 @@ namespace IA.Configurations
         
         public List<Agent> TopAgentList { get; private set; }
         public List<Agent> BotAgentList { get; private set; }
-
         private List<Food> _foodList;
-
+        public Vector2Int TerrainCount => terrainCount;
+        
         private void OnValidate()
         {
             agentAmount = ValidatedAgentAmount();
@@ -39,7 +39,7 @@ namespace IA.Configurations
             return agentAmount;
         }
 
-        public void CreateTerrain()
+        public void CreateTerrain(Transform parent)
         {
             for (int i = 0; i < terrainCount.x; i++)
             {
@@ -48,7 +48,7 @@ namespace IA.Configurations
                     Vector3 position = Vector3.zero;
                     position.x = eachTerrainSize.x * i;
                     position.z = eachTerrainSize.z * j;
-                    Instantiate(terrainPrefab, position, Quaternion.identity);
+                    Instantiate(terrainPrefab, position, Quaternion.identity, parent);
                 }
             }
         }

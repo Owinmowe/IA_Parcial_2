@@ -16,7 +16,7 @@ namespace IA.Managers
             brain.AddNeuronLayer(data.outputsCount, data.bias, data.sigmoid);
 
             Genome genome = new Genome(brain.GetTotalWeightsCount());
-            if (data.genome.Length > 0)
+            if (data.genome is { Length: > 0 })
             {
                 genome.genome = data.genome;
             }

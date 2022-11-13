@@ -38,7 +38,7 @@ namespace IA.Gameplay
 
         public void StartMoving()
         {
-            Think();
+            //Think();
             Move(_moveInput);
             OnAgentStopMoving?.Invoke();
         }
