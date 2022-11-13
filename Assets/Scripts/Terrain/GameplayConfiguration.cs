@@ -239,7 +239,7 @@ namespace IA.Configurations
 
         private int GetManhattanDistance(Vector2Int from, Vector2Int to)
         {
-            
+            return Math.Abs(to.x - from.x) + Math.Abs(to.y - from.y);
         }
         
     }
