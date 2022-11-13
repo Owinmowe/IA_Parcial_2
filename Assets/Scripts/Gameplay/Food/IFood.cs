@@ -2,6 +2,6 @@ namespace IA.Gameplay
 {
     public interface IFood
     {
-        void Consume();
+        void GetEaten(Agent agent);
     }
 }

@@ -16,6 +16,7 @@ namespace IA.Gameplay
         public Action OnAgentStopActing { get; set; }
         public Vector2Int CurrentPosition { get; set; }
 
+        public int FoodTaken { get; set; }
         public Genome AgentGenome { get; private set; }
         public NeuralNetwork AgentBrain { get; private set; }
 
@@ -118,14 +119,7 @@ namespace IA.Gameplay
         
         private void Act(float output)
         {
-            if (output < 0.5f)
-            {
-                
-            }
-            else
-            {
-                
-            }
+            _gameplayConfiguration.AgentAct(this, output < 0.5f);
         }
         
     }

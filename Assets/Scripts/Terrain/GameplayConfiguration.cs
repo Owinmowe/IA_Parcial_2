@@ -225,6 +225,16 @@ namespace IA.Configurations
 
             return closestFoodPosition;
         }
+
+        public void AgentAct(Agent agent, bool positiveAction)
+        {
+            if (_foodList.Exists(i => i.CurrentPosition == agent.CurrentPosition))
+            {
+                var food = _foodList.Find(i => i.CurrentPosition == agent.CurrentPosition);
+                _foodList.Remove(food);
+                food.GetEaten(agent);
+            }
+        }
         
         private void ShuffleList<T> (List<T> list)
         {
