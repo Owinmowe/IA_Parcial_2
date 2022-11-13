@@ -19,26 +19,31 @@ namespace IA.UI
         [SerializeField] private Slider simulationSpeedSlider;
         [SerializeField] private TextMeshProUGUI simulationSpeedText;
         
-        private TextMeshProUGUI playPauseButtonText;
-        private TextMeshProUGUI animationsButtonText;
+        [Header("Simulation Information")]
+        [SerializeField] private TextMeshProUGUI currentGenerationText;
+        [SerializeField] private TextMeshProUGUI currentTurnText;
+        
+        private TextMeshProUGUI _playPauseButtonText;
+        private TextMeshProUGUI _animationsButtonText;
+
         private void Awake()
         {
-            playPauseButtonText = playPauseButton.GetComponentInChildren<TextMeshProUGUI>();
-            playPauseButtonText.text = "Pause Simulation";
+            _playPauseButtonText = playPauseButton.GetComponentInChildren<TextMeshProUGUI>();
+            _playPauseButtonText.text = "Pause Simulation";
             
             playPauseButton.onClick.AddListener(delegate
             {
                 GameManager.Instance.Paused = !GameManager.Instance.Paused;
-                playPauseButtonText.text = GameManager.Instance.Paused ? "Resume Simulation" : "Pause Simulation";
+                _playPauseButtonText.text = GameManager.Instance.Paused ? "Resume Simulation" : "Pause Simulation";
             });
             
-            animationsButtonText = animationsButton.GetComponentInChildren<TextMeshProUGUI>();
-            animationsButtonText.text = "Remove Animations";
+            _animationsButtonText = animationsButton.GetComponentInChildren<TextMeshProUGUI>();
+            _animationsButtonText.text = "Remove Animations";
             
             animationsButton.onClick.AddListener(delegate
             {
                 GameManager.Instance.AnimationsOn = !GameManager.Instance.AnimationsOn;
-                animationsButtonText.text = GameManager.Instance.AnimationsOn ? "Remove Animations" : "Add Animations";
+                _animationsButtonText.text = GameManager.Instance.AnimationsOn ? "Remove Animations" : "Add Animations";
             });
             
             stopSimulationButton.onClick.AddListener(delegate
@@ -55,7 +60,6 @@ namespace IA.UI
                 GameManager.Instance.SimulationSpeed = value;
                 simulationSpeedText.text = "Simulation Speed: " + GameManager.Instance.SimulationSpeed;
             });
-            
         }
     }
 }

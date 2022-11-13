@@ -9,19 +9,19 @@ namespace IA.Managers
     public class GameManager : MonoBehaviour
     {
 
-        [SerializeField] private GameplayConfiguration gameplayConfiguration = default;
-
-        public GameplayConfiguration GameplayConfig => gameplayConfiguration;
-
-        public GenomeData RedGenomeData { get; private set; } = new GenomeData();
-        public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
+        public Action<int> OnTurnEnd;
+        public Action<int> OnGenerationEnd;
 
         public static GameManager Instance { get; private set; } = null;
-
+        
+        [SerializeField] private GameplayConfiguration gameplayConfiguration = default;
+        
+        public GameplayConfiguration GameplayConfig => gameplayConfiguration;
+        public GenomeData RedGenomeData { get; private set; } = new GenomeData();
+        public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
         public bool AnimationsOn { get; set; } = true;
         public bool Started { get; private set; } = false;
         public bool Paused { get; set; } = true;
-        
         public float SimulationSpeed
         {
             get => _simulationSpeed;
@@ -31,7 +31,7 @@ namespace IA.Managers
                 _timeManager.TimeBetweenTicks = 1.0f / _simulationSpeed;
             }
         }
-
+        
         private float _simulationSpeed = 1f;
         
         private Action _onMoveAllGrid;
@@ -42,6 +42,7 @@ namespace IA.Managers
         private GenerationManager _generationManager;
         
         private int _currentTurn = 0;
+        private int _currentGeneration = 0;
 
         private void Awake()
         {
@@ -115,6 +116,9 @@ namespace IA.Managers
             Started = false;
             Paused = true;
             gameplayConfiguration.ClearAllAgentsAndFood();
+            
+            _currentTurn = 0;
+            _currentGeneration = 0;
         }
 
         public float[] GetInputs(Agent agent)
@@ -149,6 +153,7 @@ namespace IA.Managers
             if (_currentTurn == gameplayConfiguration.TurnsPerGeneration)
             {
                 _currentTurn = 0;
+                _currentGeneration++;
                     
                 gameplayConfiguration.ClearAllAgentsAndFood();
                     
@@ -156,7 +161,10 @@ namespace IA.Managers
                 gameplayConfiguration.CreateFood();
                 
                 CreateBrainsWithSavedData();
+                OnGenerationEnd?.Invoke(_currentGeneration);
             }
+            
+            OnTurnEnd?.Invoke(_currentTurn);
         }
         
         public void RegisterAgent(IAgent agent) => _agentsManager.RegisterAgent(agent);
