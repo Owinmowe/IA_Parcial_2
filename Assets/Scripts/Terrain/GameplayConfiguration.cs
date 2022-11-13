@@ -34,7 +34,11 @@ namespace IA.Configurations
         
         private List<Food> _foodList;
         public Vector2Int TerrainCount => terrainCount;
-        public int TurnsPerGeneration => turnsPerGeneration;
+        public int TurnsPerGeneration
+        {
+            get => turnsPerGeneration;
+            set => turnsPerGeneration = value;
+        }
 
         public void CreateTerrain(Transform parent)
         {
