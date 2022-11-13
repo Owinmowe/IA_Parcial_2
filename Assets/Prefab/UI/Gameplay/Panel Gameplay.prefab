@@ -53,6 +53,7 @@ MonoBehaviour:
   panelPreGameplay: {fileID: 0}
   playPauseButton: {fileID: 2266095326471513052}
   stopSimulationButton: {fileID: 76082425180185237}
+  animationsButton: {fileID: 6721253891385790651}
   simulationSpeedSlider: {fileID: 7335456376908448898}
   simulationSpeedText: {fileID: 2380649021175690059}
 --- !u!1001 &5774228468161410006
@@ -100,7 +101,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5774228468802718573, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 125
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5774228468802718573, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -132,11 +133,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5774228468802718573, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -125
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 5774228468802718573, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -85
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 5774228468802718573, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -188,6 +189,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6721253891385790651 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 965071039995732845, guid: 4ec070e19f7eeda4aba4f6461000e91e, type: 3}
+  m_PrefabInstance: {fileID: 5774228468161410006}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &7335456376908448898 stripped

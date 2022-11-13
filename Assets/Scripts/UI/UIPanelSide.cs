@@ -42,12 +42,13 @@ namespace IA.UI
 
         private void SetPopulationCountSlider()
         {
-            populationConfiguration.SetSlider(null, null, GameManager.Instance.TerrainConfig.TerrainCount.x);
+            populationConfiguration.SetSlider(null, null, GameManager.Instance.GameplayConfig.TerrainCount.x);
 
             populationConfiguration.slider.onValueChanged.AddListener(delegate(float value)
             {
                 _data.populationCount = (int)value;
             });
+            _data.populationCount = populationConfiguration.defaultValue;
         }
 
         private void SetInputCountSlider()
@@ -58,6 +59,7 @@ namespace IA.UI
             {
                 _data.inputsCount = (int)value;
             });
+            _data.inputsCount = inputConfiguration.defaultValue;
         }
         
         private void SetHiddenLayerCountSlider()
@@ -68,6 +70,7 @@ namespace IA.UI
             {
                 _data.hiddenLayers = (int)value;
             });
+            _data.hiddenLayers = hiddenLayerConfiguration.defaultValue;
         }
         
         private void SetOutputsCountSlider()
@@ -78,6 +81,7 @@ namespace IA.UI
             {
                 _data.outputsCount = (int)value;
             });
+            _data.outputsCount = outputsConfiguration.defaultValue;
         }
         
         private void SetNeuronsPerHiddenLayerCountSlider()
@@ -88,6 +92,7 @@ namespace IA.UI
             {
                 _data.neuronCountPerHiddenLayer = (int)value;
             });
+            _data.neuronCountPerHiddenLayer = neuronsPerHiddenLayerConfiguration.defaultValue;
         }
         
         private void SetBiasValueSlider()
@@ -98,6 +103,7 @@ namespace IA.UI
             {
                 _data.bias = value;
             });
+            _data.bias = biasConfiguration.defaultValue;
         }
         
         private void SetSigmoidSlopeSlider()
@@ -108,6 +114,7 @@ namespace IA.UI
             {
                 _data.sigmoid = value;
             });
+            _data.sigmoid = sigmoidConfiguration.defaultValue;
         }
         
         private void SetMutationRateSlider()
@@ -118,6 +125,7 @@ namespace IA.UI
             {
                 _data.mutationRate = value;
             });
+            _data.mutationRate = mutationRateConfiguration.defaultValue;
         }
         
         private void SetMutationChanceSlider()
@@ -128,6 +136,7 @@ namespace IA.UI
             {
                 _data.mutationChance = value;
             });
+            _data.mutationChance = mutationChanceConfiguration.defaultValue;
         }
         
         [Serializable]

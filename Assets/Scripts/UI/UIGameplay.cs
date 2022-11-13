@@ -13,12 +13,14 @@ namespace IA.UI
         [SerializeField] private GameObject panelPreGameplay;
         [SerializeField] private Button playPauseButton;
         [SerializeField] private Button stopSimulationButton;
+        [SerializeField] private Button animationsButton;
         
         [Header("Simulation Speed")]
         [SerializeField] private Slider simulationSpeedSlider;
         [SerializeField] private TextMeshProUGUI simulationSpeedText;
         
         private TextMeshProUGUI playPauseButtonText;
+        private TextMeshProUGUI animationsButtonText;
         private void Awake()
         {
             playPauseButtonText = playPauseButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -28,6 +30,15 @@ namespace IA.UI
             {
                 GameManager.Instance.Paused = !GameManager.Instance.Paused;
                 playPauseButtonText.text = GameManager.Instance.Paused ? "Resume Simulation" : "Pause Simulation";
+            });
+            
+            animationsButtonText = animationsButton.GetComponentInChildren<TextMeshProUGUI>();
+            animationsButtonText.text = "Remove Animations";
+            
+            animationsButton.onClick.AddListener(delegate
+            {
+                GameManager.Instance.AnimationsOn = !GameManager.Instance.AnimationsOn;
+                animationsButtonText.text = GameManager.Instance.AnimationsOn ? "Remove Animations" : "Add Animations";
             });
             
             stopSimulationButton.onClick.AddListener(delegate

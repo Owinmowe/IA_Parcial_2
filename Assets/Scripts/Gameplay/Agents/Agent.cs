@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using IA.Configurations;
 using IA.Managers;
 using UnityEngine;
@@ -7,24 +8,29 @@ namespace IA.Gameplay
 {
     public class Agent : MonoBehaviour, IAgent
     {
+
+        [Header("Agent Animation")] 
+        [SerializeField] private float movementSpeed = 1;
+        
         public Action OnAgentStopMoving { get; set; } 
         public Action OnAgentStopActing { get; set; }
         public Vector2Int CurrentPosition { get; set; }
-        
-        private Genome _genome;
-        private NeuralNetwork _brain;
+
+        public Genome AgentGenome { get; private set; }
+        public NeuralNetwork AgentBrain { get; private set; }
+
         private float[] _inputs;
 
         private float _moveInput;
         private float _actionInput;
         
-        public void SetTerrainConfiguration(Vector2Int startPosition, TerrainConfiguration configuration)
+        public void SetTerrainConfiguration(Vector2Int startPosition, GameplayConfiguration configuration)
         {
-            _terrainConfiguration = configuration;
+            _gameplayConfiguration = configuration;
             CurrentPosition = startPosition;
         }
 
-        private TerrainConfiguration _terrainConfiguration;
+        private GameplayConfiguration _gameplayConfiguration;
         
         private void Start()
         {
@@ -38,9 +44,8 @@ namespace IA.Gameplay
 
         public void StartMoving()
         {
-            //Think();
+            Think();
             Move(_moveInput);
-            OnAgentStopMoving?.Invoke();
         }
 
         public void StartActing()
@@ -51,17 +56,16 @@ namespace IA.Gameplay
 
         public void SetIntelligence(Genome genome, NeuralNetwork brain)
         {
-            _genome = genome;
-            _brain = brain;
+            AgentGenome = genome;
+            AgentBrain = brain;
             _inputs = new float[brain.InputsCount];
         }
         
         public void Think()
         {
-
             _inputs = GameManager.Instance.GetInputs(this);
 
-            float[] output = _brain.Synapsis(_inputs);
+            float[] output = AgentBrain.Synapsis(_inputs);
 
             _moveInput = output[0];
             _actionInput = output[1];
@@ -69,27 +73,52 @@ namespace IA.Gameplay
 
         private void Move(float output)
         {
-            if (output < -.6f)
+            Vector3 newPosition = transform.position;
+            if (output < .8f)
             {
-                transform.position = _terrainConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Down);
-            }
-            else if (output < -.2f)
-            {
-                transform.position = _terrainConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Up);
-            }
-            else if (output < .2f)
-            {
-                transform.position = _terrainConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Left);
+                newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Down);
             }
             else if (output < .6f)
             {
-                transform.position = _terrainConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Right);
+                newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Right);
             }
+            else if (output < .4f)
+            {
+                newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Left);
+            }
+            else if (output < .2f)
+            {
+                newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Up);
+            }
+
+            if (GameManager.Instance.AnimationsOn)
+            {
+                StartCoroutine(MoveAnimationCoroutine(newPosition));
+            }
+            else
+            {
+                transform.position = newPosition;
+                OnAgentStopMoving?.Invoke();
+            }
+        }
+
+        private IEnumerator MoveAnimationCoroutine(Vector3 endPosition)
+        {
+            Vector3 startPosition = transform.position;
+            float t = 0;
+            while (t < 1)
+            {
+                transform.position = Vector3.Lerp(startPosition, endPosition, t);
+                t += Time.deltaTime * movementSpeed;
+                yield return null;
+            }
+            transform.position = endPosition;
+            OnAgentStopMoving?.Invoke();
         }
         
         private void Act(float output)
         {
-            if (output < 0)
+            if (output < 0.5f)
             {
                 
             }

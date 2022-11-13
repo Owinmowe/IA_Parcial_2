@@ -4,8 +4,8 @@ using IA.Gameplay;
 
 namespace IA.Configurations
 {
-    [CreateAssetMenu(fileName = "Terrain Configuration", menuName = "ScriptableObjects/Terrain Configuration", order = 1)]
-    public class TerrainConfiguration : ScriptableObject
+    [CreateAssetMenu(fileName = "Gameplay Configuration", menuName = "ScriptableObjects/Gameplay Configuration", order = 1)]
+    public class GameplayConfiguration : ScriptableObject
     {
         [Header("Terrain")]
         [SerializeField] private GameObject terrainPrefab = default;
@@ -16,28 +16,23 @@ namespace IA.Configurations
         [SerializeField] private Agent topAgentPrefabs = default;
         [SerializeField] private Agent botAgentPrefabs = default;
         [SerializeField] private Vector3 agentSpawnOffset = Vector3.zero;
-        [SerializeField] private int agentAmount = 0;
 
         [Header("Food")] 
         [SerializeField] private Food foodPrefab = default;
         [SerializeField] private Vector3 foodSpawnOffset = Vector3.zero;
         
-        public List<Agent> TopAgentList { get; private set; }
-        public List<Agent> BotAgentList { get; private set; }
+        [Header("General")]
+        [SerializeField] private int turnsPerGeneration = 500;
+        
+        public List<Agent> RedAgentsList { get; private set; }
+        public List<Agent> GreenAgentList { get; private set; }
+
+        private int _greenAgentsAmount = 0;
+        private int _redAgentsAmount = 0;
+        
         private List<Food> _foodList;
         public Vector2Int TerrainCount => terrainCount;
-        
-        private void OnValidate()
-        {
-            agentAmount = ValidatedAgentAmount();
-        }
-
-        private int ValidatedAgentAmount()
-        {
-            if (agentAmount > terrainCount.x) return terrainCount.x;
-            if (agentAmount < 0) return 0;
-            return agentAmount;
-        }
+        public int TurnsPerGeneration => turnsPerGeneration;
 
         public void CreateTerrain(Transform parent)
         {
@@ -53,11 +48,11 @@ namespace IA.Configurations
             }
         }
 
-        public void CreateAgents()
+        public void CreateAgents(int greenAgentAmount, int redAgentAmount)
         {
-            
-            BotAgentList.Clear();
-            BotAgentList = new List<Agent>(agentAmount);
+            _greenAgentsAmount = greenAgentAmount;
+            GreenAgentList.Clear();
+            GreenAgentList = new List<Agent>(greenAgentAmount);
             
             List<int> possiblePositions = new List<int>(terrainCount.x);
             for (int i = 0; i < terrainCount.x; i++)
@@ -66,7 +61,7 @@ namespace IA.Configurations
             }
             ShuffleList(possiblePositions);
 
-            for (int i = 0; i < agentAmount; i++)
+            for (int i = 0; i < greenAgentAmount; i++)
             {
                 Vector3 position = Vector3.zero;
                 position.x = possiblePositions[i];
@@ -83,12 +78,12 @@ namespace IA.Configurations
 
                 agent.SetTerrainConfiguration(positionInt, this);
                 
-                BotAgentList.Add(agent);
+                GreenAgentList.Add(agent);
             }
-
             
-            TopAgentList.Clear();
-            TopAgentList = new List<Agent>(agentAmount);
+            _redAgentsAmount = redAgentAmount;
+            RedAgentsList.Clear();
+            RedAgentsList = new List<Agent>(redAgentAmount);
             
             possiblePositions.Clear();
             for (int i = 0; i < terrainCount.x; i++)
@@ -97,7 +92,7 @@ namespace IA.Configurations
             }
             ShuffleList(possiblePositions);
             
-            for (int i = 0; i < agentAmount; i++)
+            for (int i = 0; i < redAgentAmount; i++)
             {
                 Vector3 position = Vector3.zero;
                 position.x = possiblePositions[i];
@@ -113,7 +108,7 @@ namespace IA.Configurations
                 };
                 
                 agent.SetTerrainConfiguration(positionInt, this);
-                TopAgentList.Add(agent);
+                RedAgentsList.Add(agent);
             }
             
         }
@@ -121,8 +116,8 @@ namespace IA.Configurations
         public void CreateFood()
         {
             _foodList.Clear();
-            _foodList = new List<Food>(agentAmount * 2);
-            for (int i = 0; i < agentAmount * 2; i++)
+            _foodList = new List<Food>(_greenAgentsAmount + _redAgentsAmount);
+            for (int i = 0; i < _greenAgentsAmount + _redAgentsAmount; i++)
             {
                 Vector3 position = Vector3.zero;
                 Vector2Int intPosition = new Vector2Int
@@ -155,17 +150,17 @@ namespace IA.Configurations
             }
             _foodList.Clear();
             
-            foreach (var botAgent in BotAgentList)
+            foreach (var botAgent in GreenAgentList)
             {
                 Destroy(botAgent.gameObject);
             }
-            BotAgentList.Clear();
+            GreenAgentList.Clear();
             
-            foreach (var topAgent in TopAgentList)
+            foreach (var topAgent in RedAgentsList)
             {
                 Destroy(topAgent.gameObject);
             }
-            TopAgentList.Clear();
+            RedAgentsList.Clear();
         }
         
         public Vector3 GetPostMovementPosition(Agent agent, Movement.MoveDirection direction)

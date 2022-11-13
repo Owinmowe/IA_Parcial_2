@@ -9,15 +9,16 @@ namespace IA.Managers
     public class GameManager : MonoBehaviour
     {
 
-        [SerializeField] private TerrainConfiguration terrainConfiguration = default;
+        [SerializeField] private GameplayConfiguration gameplayConfiguration = default;
 
-        public TerrainConfiguration TerrainConfig => terrainConfiguration;
+        public GameplayConfiguration GameplayConfig => gameplayConfiguration;
 
         public GenomeData RedGenomeData { get; private set; } = new GenomeData();
         public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
 
         public static GameManager Instance { get; private set; } = null;
 
+        public bool AnimationsOn { get; set; } = true;
         public bool Started { get; private set; } = false;
         public bool Paused { get; set; } = true;
         
@@ -31,8 +32,6 @@ namespace IA.Managers
             }
         }
 
-        public int TurnsPerGeneration { get; set; } = 30;
-        
         private float _simulationSpeed = 1f;
         
         private Action _onMoveAllGrid;
@@ -68,7 +67,7 @@ namespace IA.Managers
             terrainParent.transform.SetParent(transform);
             terrainParent.name = "Terrain Parent";
             
-            terrainConfiguration.CreateTerrain(terrainParent.transform);
+            gameplayConfiguration.CreateTerrain(terrainParent.transform);
             
             _timeManager.onActionTimeReached += StartAllAgentsMovingTime;
             
@@ -90,34 +89,39 @@ namespace IA.Managers
             Started = true;
             Paused = false;
             
-            terrainConfiguration.CreateAgents();
-            terrainConfiguration.CreateFood();
+            gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
+            gameplayConfiguration.CreateFood();
             
-            var botAgents = terrainConfiguration.BotAgentList;
+            CreateBrainsWithSavedData();
+        }
+
+        private void CreateBrainsWithSavedData()
+        {
+            var botAgents = gameplayConfiguration.GreenAgentList;
             foreach (var agent in botAgents)
             {
                 _generationManager.CreateAgentBrains(agent, GreenGenomeData);
             }
-            
-            var topAgents = terrainConfiguration.TopAgentList;
+
+            var topAgents = gameplayConfiguration.RedAgentsList;
             foreach (var agent in topAgents)
             {
                 _generationManager.CreateAgentBrains(agent, RedGenomeData);
             }
         }
-        
+
         public void StopSimulation()
         {
             Started = false;
             Paused = true;
-            terrainConfiguration.ClearAllAgentsAndFood();
+            gameplayConfiguration.ClearAllAgentsAndFood();
         }
 
         public float[] GetInputs(Agent agent)
         {
             var inputs = new float[4];
 
-            var closestFoodPosition = terrainConfiguration.GetClosestFood(agent.CurrentPosition);
+            var closestFoodPosition = gameplayConfiguration.GetClosestFood(agent.CurrentPosition);
 
             inputs[0] = agent.CurrentPosition.x;
             inputs[1] = agent.CurrentPosition.y;
@@ -142,15 +146,16 @@ namespace IA.Managers
         private void AllAgentsStoppedActing()
         {
             _currentTurn++;
-            if (_currentTurn == TurnsPerGeneration)
+            if (_currentTurn == gameplayConfiguration.TurnsPerGeneration)
             {
-                Debug.Log(_currentTurn);
                 _currentTurn = 0;
                     
-                terrainConfiguration.ClearAllAgentsAndFood();
+                gameplayConfiguration.ClearAllAgentsAndFood();
                     
-                terrainConfiguration.CreateAgents();
-                terrainConfiguration.CreateFood();
+                gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
+                gameplayConfiguration.CreateFood();
+                
+                CreateBrainsWithSavedData();
             }
         }
         

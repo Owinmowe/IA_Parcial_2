@@ -23,5 +23,6 @@ namespace IA.Managers
             
             agent.SetIntelligence(genome, brain);
         }
+        
     }
 }
