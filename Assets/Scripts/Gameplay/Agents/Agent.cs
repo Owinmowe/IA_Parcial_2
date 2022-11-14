@@ -43,15 +43,15 @@ namespace IA.Gameplay
             GameManager.Instance.UnRegisterAgent(this);
         }
 
-        public void StartMoving()
+        public void StartMoving(bool instant)
         {
             Think();
-            Move(_moveInput);
+            Move(_moveInput, instant);
         }
 
-        public void StartActing()
+        public void StartActing(bool instant)
         {
-            Act(_actionInput);
+            Act(_actionInput, instant);
             OnAgentStopActing?.Invoke();
         }
 
@@ -72,7 +72,7 @@ namespace IA.Gameplay
             _actionInput = output[1];
         }
 
-        private void Move(float output)
+        private void Move(float output, bool instant)
         {
             Vector3 newPosition = transform.position;
             if (output < .8f)
@@ -91,16 +91,25 @@ namespace IA.Gameplay
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Up);
             }
-
-            if (GameManager.Instance.AnimationsOn)
-            {
-                StartCoroutine(MoveAnimationCoroutine(newPosition));
-            }
-            else
+            
+            if (instant)
             {
                 transform.position = newPosition;
                 OnAgentStopMoving?.Invoke();
             }
+            else
+            {
+                if (GameManager.Instance.AnimationsOn)
+                {
+                    StartCoroutine(MoveAnimationCoroutine(newPosition));
+                }
+                else
+                {
+                    transform.position = newPosition;
+                    OnAgentStopMoving?.Invoke();
+                }
+            }
+            
         }
 
         private IEnumerator MoveAnimationCoroutine(Vector3 endPosition)
@@ -117,7 +126,7 @@ namespace IA.Gameplay
             OnAgentStopMoving?.Invoke();
         }
         
-        private void Act(float output)
+        private void Act(float output, bool instant)
         {
             _gameplayConfiguration.AgentAct(this, output < 0.5f);
         }

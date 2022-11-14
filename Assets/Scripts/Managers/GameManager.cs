@@ -69,6 +69,7 @@ namespace IA.Managers
             gameplayConfiguration.CreateTerrain(terrainParent.transform);
             
             _timeManager.onActionTimeReached += StartAllAgentsMovingTime;
+            _timeManager.SetCyclesAmount(gameplayConfiguration.TurnsPerGeneration);
             
             _agentsManager.onAllAgentsStoppedMoving += StartAllAgentsActionTime;
             _agentsManager.onAllAgentsStoppedActing += AllAgentsStoppedActing;
@@ -134,10 +135,10 @@ namespace IA.Managers
             return inputs;
         }
         
-        private void StartAllAgentsMovingTime()
+        private void StartAllAgentsMovingTime(bool instant)
         {
             _agentsTime = true;
-            _agentsManager.StartAllAgentsMoving();
+            _agentsManager.StartAllAgentsMoving(instant);
         }
         
         private void StartAllAgentsActionTime()
@@ -148,7 +149,7 @@ namespace IA.Managers
         private void AllAgentsStoppedActing()
         {
             _currentTurn++;
-            if (_currentTurn == gameplayConfiguration.TurnsPerGeneration)
+            if (_currentTurn > gameplayConfiguration.TurnsPerGeneration)
             {
                 _currentTurn = 0;
                 _currentGeneration++;
