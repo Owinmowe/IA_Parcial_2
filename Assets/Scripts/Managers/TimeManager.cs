@@ -16,9 +16,9 @@ namespace IA.Managers
         public void Update(float deltaTime)
         {
             _currentTime += deltaTime;
-            while (_currentTime > TimeBetweenTicks && !CycleEnded())
+            if (_currentTime > TimeBetweenTicks && !CycleEnded())
             {
-                _currentTime -= TimeBetweenTicks;
+                _currentTime = 0;
                 _currentCycleAmount++;
                 onActionTimeReached?.Invoke(_currentTime > TimeBetweenTicks);
             }

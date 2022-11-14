@@ -19,7 +19,7 @@ namespace IA.Managers
         public GameplayConfiguration GameplayConfig => gameplayConfiguration;
         public GenomeData RedGenomeData { get; private set; } = new GenomeData();
         public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
-        public bool AnimationsOn { get; set; } = true;
+        public bool AnimationsOn { get; set; } = false;
         public bool Started { get; private set; } = false;
         public bool Paused { get; set; } = true;
         
@@ -34,7 +34,7 @@ namespace IA.Managers
         }
         
         private float _simulationSpeed = 1f;
-        public bool _agentsTime = false;
+        private bool _agentsTime = false;
         
         private TimeManager _timeManager;
         private AgentsManager _agentsManager;
