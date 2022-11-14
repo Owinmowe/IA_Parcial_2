@@ -22,6 +22,7 @@ namespace IA.Managers
         public bool AnimationsOn { get; set; } = true;
         public bool Started { get; private set; } = false;
         public bool Paused { get; set; } = true;
+        
         public float SimulationSpeed
         {
             get => _simulationSpeed;
@@ -33,10 +34,8 @@ namespace IA.Managers
         }
         
         private float _simulationSpeed = 1f;
+        public bool _agentsTime = false;
         
-        private Action _onMoveAllGrid;
-        private Action _onActionAllGrid;
-
         private TimeManager _timeManager;
         private AgentsManager _agentsManager;
         private GenerationManager _generationManager;
@@ -63,7 +62,6 @@ namespace IA.Managers
 
         private void Start()
         {
-
             GameObject terrainParent = new GameObject();
             terrainParent.transform.SetParent(transform);
             terrainParent.name = "Terrain Parent";
@@ -77,7 +75,7 @@ namespace IA.Managers
         }
         private void Update()
         {
-            if (!Paused && Started) _timeManager.Update(Time.deltaTime);
+            if (!Paused && !_agentsTime && Started) _timeManager.Update(Time.deltaTime);
         }
         private void OnDestroy()
         {
@@ -89,6 +87,7 @@ namespace IA.Managers
         {
             Started = true;
             Paused = false;
+            _agentsTime = false;
             
             gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
             gameplayConfiguration.CreateFood();
@@ -137,13 +136,12 @@ namespace IA.Managers
         
         private void StartAllAgentsMovingTime()
         {
-            _onMoveAllGrid?.Invoke();
+            _agentsTime = true;
             _agentsManager.StartAllAgentsMoving();
         }
         
         private void StartAllAgentsActionTime()
         {
-            _onActionAllGrid?.Invoke();
             _agentsManager.StartAllAgentsActing();
         }
         
@@ -163,7 +161,8 @@ namespace IA.Managers
                 CreateBrainsWithSavedData();
                 OnGenerationEnd?.Invoke(_currentGeneration);
             }
-            
+
+            _agentsTime = false;
             OnTurnEnd?.Invoke(_currentTurn);
         }
         
