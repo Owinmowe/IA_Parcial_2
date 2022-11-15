@@ -11,19 +11,23 @@ namespace IA.Gameplay
 
         [Header("Agent Animation")] 
         [SerializeField] private float movementSpeed = 1;
+
+        [Header("Fitness Strength")] 
+        [SerializeField] private AnimationCurve fitnessCurve;
         
         public Action OnAgentStopMoving { get; set; } 
         public Action OnAgentStopActing { get; set; }
         public Vector2Int CurrentPosition { get; set; }
 
-        public int FoodTaken { get; set; }
         public Genome AgentGenome { get; private set; }
         public NeuralNetwork AgentBrain { get; private set; }
 
         private float[] _inputs;
+        private float _fitness = 0;
 
         private float _moveInput;
         private float _actionInput;
+        private int _foodEaten;
         
         public void SetTerrainConfiguration(Vector2Int startPosition, GameplayConfiguration configuration)
         {
@@ -129,6 +133,12 @@ namespace IA.Gameplay
         private void Act(float output, bool instant)
         {
             _gameplayConfiguration.AgentAct(this, output < 0.5f);
+        }
+
+        public void Eat(int bonusFitness)
+        {
+            _foodEaten++;
+            _fitness += bonusFitness * fitnessCurve.Evaluate(_foodEaten);
         }
         
     }
