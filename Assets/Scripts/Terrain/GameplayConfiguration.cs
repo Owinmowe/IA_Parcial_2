@@ -138,7 +138,7 @@ namespace IA.Configurations
                     position.z = eachTerrainSize.z * intPosition.y;
                     position += foodSpawnOffset;
                     var food = Instantiate(foodPrefab, position, Quaternion.identity);
-                    
+                    food.CurrentPosition = intPosition;
                     _foodList.Add(food);
                 }
                 else

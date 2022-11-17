@@ -21,14 +21,15 @@ namespace IA.Gameplay
 
         public Genome AgentGenome { get; private set; }
         public NeuralNetwork AgentBrain { get; private set; }
+        public int GenerationsLived { get; set; }
+        public int FoodEaten { get; private set; }
 
         private float[] _inputs;
         private float _fitness = 0;
 
         private float _moveInput;
         private float _actionInput;
-        private int _foodEaten;
-        
+
         public void SetTerrainConfiguration(Vector2Int startPosition, GameplayConfiguration configuration)
         {
             _gameplayConfiguration = configuration;
@@ -137,8 +138,8 @@ namespace IA.Gameplay
 
         public void Eat(int bonusFitness)
         {
-            _foodEaten++;
-            _fitness += bonusFitness * fitnessCurve.Evaluate(_foodEaten);
+            FoodEaten++;
+            _fitness += bonusFitness * fitnessCurve.Evaluate(FoodEaten);
         }
         
     }
