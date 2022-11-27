@@ -29,6 +29,7 @@ namespace IA.UI
 
         private void Start()
         {
+            Screen.SetResolution(1000, 650, false);
             GameManager.Instance.SimulationSpeed = 1f;
             SetPreGameplayUI();
         }
