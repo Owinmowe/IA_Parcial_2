@@ -27,9 +27,9 @@ namespace IA.Configurations
         [Header("General")]
         [SerializeField] private int turnsPerGeneration = 500;
         [SerializeField] private int generationsBeforeEvolutionStart = 20;
-        
-        public List<Agent> RedAgentsList { get; private set; }
-        public List<Agent> GreenAgentsList { get; private set; }
+
+        public List<Agent> RedAgentsList { get; private set; } = new List<Agent>();
+        public List<Agent> GreenAgentsList { get; private set; }= new List<Agent>();
 
         public float GetRedAgentsCurrentFitness()
         {
@@ -54,7 +54,7 @@ namespace IA.Configurations
         private int _greenAgentsAmount = 0;
         private int _redAgentsAmount = 0;
         
-        private List<Food> _foodList;
+        private List<Food> _foodList = new List<Food>();
         public Vector2Int TerrainCount => terrainCount;
         public int TurnsPerGeneration
         {
@@ -228,7 +228,7 @@ namespace IA.Configurations
         {
             StartingFood = _greenAgentsAmount + _redAgentsAmount;
             _foodList.Clear();
-            _foodList = new List<Food>();
+            
             for (int i = 0; i < StartingFood; i++)
             {
                 Vector3 position = Vector3.zero;
@@ -403,77 +403,81 @@ namespace IA.Configurations
             
             if (_foodList.Exists(i => i.CurrentPosition == agentCurrentPosition))
             {
-                if (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
+                if (GameManager.Instance.EvolutionStarted)
                 {
-                    foreach (var enemies in enemiesInThisPosition)
+                    if (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
                     {
-                        if (!enemies.ActionPositive())
+                        foreach (var enemies in enemiesInThisPosition)
                         {
-                            enemies.ReturnToPreviousPosition();
+                            if (!enemies.ActionPositive())
+                            {
+                                enemies.Flee();
+                            }
+                        }
+
+                        foreach (var allies in alliesInThisPosition)
+                        {
+                            if (!allies.ActionPositive())
+                            {
+                                allies.Flee();
+                            }
                         }
                     }
-                    
-                    foreach (var allies in alliesInThisPosition)
+
+                    while (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
                     {
-                        if (!allies.ActionPositive())
+                        if (agentCurrentPosition != agent.CurrentPosition)
+                            return;
+
+                        var enemy = enemyTeam.Find(i => i.CurrentPosition == agentCurrentPosition);
+                        if (agent.ActionPositive() && enemy.ActionPositive())
                         {
-                            allies.ReturnToPreviousPosition();
-                        }    
+                            int random = Random.Range(0, 2);
+                            if (random == 0)
+                            {
+                                enemyTeam.Remove(enemy);
+                                enemy.Die();
+                            }
+                            else
+                            {
+                                ownTeam.Remove(agent);
+                                agent.Die();
+                                return;
+                            }
+                        }
                     }
                 }
 
-                while (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
-                {
-                    if (agentCurrentPosition != agent.CurrentPosition)
-                        return;
-                    
-                    var enemy = enemyTeam.Find(i => i.CurrentPosition == agentCurrentPosition);
-                    if (agent.ActionPositive() && enemy.ActionPositive())
-                    {
-                        int random = Random.Range(0, 2);
-                        if (random == 0)
-                        {
-                            Debug.Log("Agent " + enemy.name + " Killed.");
-                            enemyTeam.Remove(enemy);
-                            Destroy(enemy.gameObject);
-                        }
-                        else
-                        {
-                            Debug.Log("Agent " + agent.name + " Killed.");
-                            ownTeam.Remove(agent);
-                            Destroy(agent.gameObject);
-                            return;
-                        }
-                    }
-                }
                 var food = _foodList.Find(i => i.CurrentPosition == agentCurrentPosition);
                 _foodList.Remove(food);
                 food.GetEaten(agent);
             }
             else
             {
+
+                if (!GameManager.Instance.EvolutionStarted)
+                    return;
+
                 while (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
                 {
                     var enemy = enemyTeam.Find(i => i.CurrentPosition == agentCurrentPosition);
                     if (!agent.ActionPositive() && !enemy.ActionPositive())
                     {
-                        agent.ReturnToPreviousPosition();
-                        enemy.ReturnToPreviousPosition();
+                        agent.Flee();
+                        enemy.Flee();
                     }
                     else if (agent.ActionPositive() && enemy.ActionPositive())
                     {
                         int random = Random.Range(0, 2);
                         if (random == 0)
                         {
-                            Debug.Log("Agent " + enemy.name + " Killed.");
                             enemyTeam.Remove(enemy);
-                            Destroy(enemy.gameObject);
+                            enemy.Die();
                         }
                         else
                         {
-                            Debug.Log("Agent " + agent.name + " Killed.");
                             ownTeam.Remove(agent);
-                            Destroy(agent.gameObject);
+                            agent.Die();
                             return;
                         }
                     }
@@ -482,13 +486,12 @@ namespace IA.Configurations
                         int random = Random.Range(0, 4);
                         if (random == 0)
                         {
-                            agent.ReturnToPreviousPosition();
+                            agent.Flee();
                         }
                         else
                         {
-                            Debug.Log("Agent " + agent.name + " Killed.");
                             ownTeam.Remove(agent);
-                            Destroy(agent.gameObject);
+                            agent.Die();
                         }
                         return;
                     }
@@ -497,13 +500,12 @@ namespace IA.Configurations
                         int random = Random.Range(0, 4);
                         if (random == 0)
                         {
-                            enemy.ReturnToPreviousPosition();
+                            enemy.Flee();
                         }
                         else
                         {
-                            Debug.Log("Agent " + enemy.name + " Killed.");
                             enemyTeam.Remove(enemy);
-                            Destroy(enemy.gameObject);
+                            enemy.Die();
                         }
                         return;
                     }

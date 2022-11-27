@@ -9,7 +9,6 @@ namespace IA.Managers
     {
 	    
         private const int MaxGenerationsPerAgent = 3;
-        private const int MinAgentsPerGroup = 2;
         private const int MinFoodEatenToReproduce = 2;
 
         public void CreateAgentBrains(Agent agent, GenomeData data)
@@ -31,39 +30,57 @@ namespace IA.Managers
             agent.SetIntelligence(genome, brain);
         }
 
+        public float[] GetBestGenomeOfAgentsList(List<Agent> agentsList)
+        {
+	        agentsList.Sort((a, b) => a.Fitness > b.Fitness ? 0 : 1);
+	        return agentsList[0].AgentGenome.genome;
+        }
+        
         public List<AgentGenerationData> GetNewGenerationData(GenomeData genomeData, List<Agent> agentsList)
         {
-            List<AgentGenerationData> generationDataList = new List<AgentGenerationData>();
 
-            if (agentsList.Count > MinAgentsPerGroup)
+	        List<AgentGenerationData> previousGenerationDataList = new List<AgentGenerationData>();
+
+	        foreach (var agent in agentsList)
+	        {
+		        previousGenerationDataList.Add(new AgentGenerationData
+		        {
+					brain = agent.AgentBrain,
+					fitness = agent.Fitness,
+					foodEaten = agent.FoodEaten,
+					generationsLived = agent.GenerationsLived,
+					genome = agent.AgentGenome
+		        });
+	        }
+
+            List<AgentGenerationData> newGenerationDataList = new List<AgentGenerationData>();
+
+            foreach (var agent in agentsList)
             {
-                foreach (var agent in agentsList)
-                {
-                    agent.GenerationsLived++;
-                    if (agent.GenerationsLived < MaxGenerationsPerAgent && agent.FoodEaten > 0)
-                    {
-                        AgentGenerationData data = new AgentGenerationData
-                        {
-	                        brain = agent.AgentBrain,
-	                        genome = agent.AgentGenome,
-	                        generationsLived = agent.GenerationsLived,
-	                        foodEaten = agent.FoodEaten,
-	                        fitness = agent.Fitness
-                        };
-                        generationDataList.Add(data);
-                    }
-                }
+	            agent.GenerationsLived++;
+	            if (agent.GenerationsLived <= MaxGenerationsPerAgent && agent.FoodEaten > 0)
+	            {
+		            AgentGenerationData data = new AgentGenerationData
+		            {
+			            brain = agent.AgentBrain,
+			            genome = agent.AgentGenome,
+			            generationsLived = agent.GenerationsLived,
+			            foodEaten = 0,
+			            fitness = 0
+		            };
+		            newGenerationDataList.Add(data);
+	            }
             }
 
             List<AgentGenerationData> parentsDataList = new List<AgentGenerationData>();
-            parentsDataList.AddRange(generationDataList);
+            parentsDataList.AddRange(previousGenerationDataList);
 	        parentsDataList.RemoveAll(i => i.foodEaten < MinFoodEatenToReproduce);
 	            
 	        int parentsCount = parentsDataList.Count % 2 == 0
 				? parentsDataList.Count
 		        : parentsDataList.Count - 1;
 
-	        if (parentsCount <= 2) return generationDataList;
+	        if (parentsCount < 2) return newGenerationDataList;
 	        
 	        List<AgentGenerationData> childrenDataList = new List<AgentGenerationData>();
                 
@@ -94,22 +111,32 @@ namespace IA.Managers
 		        childrenDataList.Add(child2Data);
 	        }
 	            
-	        generationDataList.AddRange(childrenDataList);
+	        newGenerationDataList.AddRange(childrenDataList);
 
-            return generationDataList;
+            return newGenerationDataList;
         }
 
         public List<AgentGenerationData> GetBestOfGeneration(GenomeData genomeData, List<Agent> agentsList)
         {
 	        List<AgentGenerationData> generationDataList = new List<AgentGenerationData>();
 	        
-	        agentsList.Sort((a, b) => a.Fitness > b.Fitness ? 0 : 1);
-
+	        if (agentsList.Count == 0)
+		        return generationDataList;
+	        
 	        Genome child1Genome;
 	        Genome child2Genome;
-
-	        Crossover(agentsList[0].AgentGenome, agentsList[1].AgentGenome, out child1Genome, out child2Genome,
-		        genomeData.mutationChance, genomeData.mutationRate);
+	        
+	        if (agentsList.Count > 1)
+	        {
+				agentsList.Sort((a, b) => a.Fitness > b.Fitness ? 0 : 1);
+		        Crossover(agentsList[0].AgentGenome, agentsList[1].AgentGenome, out child1Genome, out child2Genome,
+			        genomeData.mutationChance, genomeData.mutationRate);
+	        }
+	        else
+	        {
+		        child1Genome = agentsList[0].AgentGenome;
+		        child2Genome = agentsList[0].AgentGenome;
+	        }
 	        
 	        for (int i = 0; i < agentsList.Count / 2; i++)
 	        {

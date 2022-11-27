@@ -12,4 +12,33 @@ public class GenomeData
     public int neuronCountPerHiddenLayer;
     public float bias;
     public float sigmoid;
+
+    public GenomeData()
+    {
+        
+    }
+
+    public GenomeData(GenomeData copy)
+    {
+        mutationChance = copy.mutationChance;
+        mutationRate = copy.mutationRate;
+
+        if (copy.genome is { Length: > 0 })
+        {
+            genome = new float[copy.genome.Length];
+            for (int i = 0; i < copy.genome.Length; i++)
+            {
+                genome[i] = copy.genome[i];
+            }
+        }
+        
+        populationCount = copy.populationCount;
+        inputsCount = copy.inputsCount;
+        hiddenLayers = copy.hiddenLayers;
+        outputsCount = copy.outputsCount;
+        neuronCountPerHiddenLayer = copy.neuronCountPerHiddenLayer;
+        bias = copy.bias;
+        sigmoid = copy.sigmoid;
+    }
+    
 }

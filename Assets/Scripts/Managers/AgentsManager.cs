@@ -13,12 +13,12 @@ namespace IA.Managers
         public System.Action onAllAgentsStoppedMoving;
         public System.Action onAllAgentsStoppedActing;
 
-        public void StartAllAgentsMoving(bool instant)
+        public void StartAllAgentsMoving()
         {
             _movedAgentsCount = 0;
             foreach (var agent in _agentsList)
             {
-                agent.StartMoving(instant);
+                agent.StartMoving();
             }
         }
         

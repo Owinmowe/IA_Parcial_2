@@ -4,7 +4,7 @@ namespace IA.Managers
 {
     public class TimeManager
     {
-        public Action<bool> onActionTimeReached;
+        public Action onActionTimeReached;
         public float TimeBetweenTicks { get; set; } = 1.0f;
 
         private float _currentTime = 0.0f;
@@ -20,7 +20,7 @@ namespace IA.Managers
             {
                 _currentTime = 0;
                 _currentCycleAmount++;
-                onActionTimeReached?.Invoke(_currentTime > TimeBetweenTicks);
+                onActionTimeReached?.Invoke();
             }
         }
 

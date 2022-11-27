@@ -4,10 +4,12 @@ namespace IA.Gameplay
 {
     public interface IAgent
     {
-        void StartMoving(bool instant = false);
+        void StartMoving();
         Action OnAgentStopMoving { get; set; }
-        void StartActing(bool instant = false);
+        void StartActing();
         Action OnAgentStopActing { get; set; }
         void Think();
+        void Die();
+        void Flee();
     }
 }

@@ -9,8 +9,13 @@ namespace IA.Gameplay
     public class Agent : MonoBehaviour, IAgent
     {
 
+        public Action OnAgentFlee;
+        public Action OnAgentDie;
+
         [Header("Agent Animation")] 
         [SerializeField] private float movementSpeed = 1;
+        [SerializeField] private Renderer graphicRenderer;
+        [SerializeField] private float timeToDie;
 
         [Header("Fitness Strength")] 
         [SerializeField] private AnimationCurve fitnessCurve;
@@ -52,15 +57,15 @@ namespace IA.Gameplay
             GameManager.Instance.UnRegisterAgent(this);
         }
 
-        public void StartMoving(bool instant)
+        public void StartMoving()
         {
             Think();
-            Move(_moveInput, instant);
+            Move(_moveInput);
         }
 
-        public void StartActing(bool instant)
+        public void StartActing()
         {
-            Act(_actionInput);
+            Act();
             OnAgentStopActing?.Invoke();
         }
 
@@ -81,9 +86,23 @@ namespace IA.Gameplay
             _actionInput = output[1];
         }
 
-        private void Move(float output, bool instant)
+        public void Die()
+        {
+            graphicRenderer.enabled = false;
+            OnAgentDie?.Invoke();
+            Destroy(gameObject, timeToDie);
+        }
+
+        public void Flee()
+        {
+            OnAgentFlee?.Invoke();
+            ReturnToPreviousPosition();
+        }
+
+        private void Move(float output)
         {
             Vector3 newPosition = transform.position;
+
             if (output > .8f)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Down);
@@ -105,46 +124,16 @@ namespace IA.Gameplay
                 _previousPositionDirection = Movement.MoveDirection.Down;
             }
             
-            if (instant)
-            {
-                transform.position = newPosition;
-                OnAgentStopMoving?.Invoke();
-            }
-            else
-            {
-                if (GameManager.Instance.AnimationsOn)
-                {
-                    StartCoroutine(MoveAnimationCoroutine(newPosition));
-                }
-                else
-                {
-                    transform.position = newPosition;
-                    OnAgentStopMoving?.Invoke();
-                }
-            }
-            
-        }
-
-        private IEnumerator MoveAnimationCoroutine(Vector3 endPosition)
-        {
-            Vector3 startPosition = transform.position;
-            float t = 0;
-            while (t < 1)
-            {
-                transform.position = Vector3.Lerp(startPosition, endPosition, t);
-                t += Time.deltaTime * movementSpeed;
-                yield return null;
-            }
-            transform.position = endPosition;
+            transform.position = newPosition;
             OnAgentStopMoving?.Invoke();
         }
-        
-        private void Act(float output)
+
+        private void Act()
         {
             _gameplayConfiguration.AgentAct(this, _team);
         }
 
-        public void ReturnToPreviousPosition()
+        private void ReturnToPreviousPosition()
         {
             transform.position = _gameplayConfiguration.GetPostMovementPosition(this, _previousPositionDirection);
             

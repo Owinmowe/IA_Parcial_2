@@ -18,11 +18,17 @@ namespace IA.Managers
         [SerializeField] private GameplayConfiguration gameplayConfiguration = default;
         
         public GameplayConfiguration GameplayConfig => gameplayConfiguration;
-        public GenomeData RedGenomeData { get; private set; } = new GenomeData();
-        public GenomeData GreenGenomeData { get; private set; } = new GenomeData();
-        public bool AnimationsOn { get; set; } = false;
+        public GenomeData RedGenomeData { get; set; } = new GenomeData();
+        public GenomeData GreenGenomeData { get; set; } = new GenomeData();
+        public bool TextOn { get; set; } = true;
         public bool Started { get; private set; } = false;
         public bool Paused { get; set; } = true;
+        public bool EvolutionStarted { get; private set; } = false;
+        public bool AutoSaveGreen { get; set; } = false;
+        public int AutoSaveGreenGenerationsCount { get; set; } = 200;
+        
+        public bool AutoSaveRed { get; set; } = false;
+        public int AutoSaveRedGenerationsCount { get; set; } = 200;
         
         public float SimulationSpeed
         {
@@ -123,14 +129,14 @@ namespace IA.Managers
 
         public float[] GetInputs(Agent agent)
         {
-            var inputs = new float[14];
+            var inputs = new float[24];
 
             int inputIndex = 0;
             inputs[inputIndex] = agent.CurrentPosition.x;
             inputIndex++;
             inputs[inputIndex] = agent.CurrentPosition.y;
 
-            var closestFoodPosition = gameplayConfiguration.GetClosestFoods(agent.CurrentPosition, 5);
+            var closestFoodPosition = gameplayConfiguration.GetClosestFoods(agent.CurrentPosition, 10);
 
             for (int i = 0; i < closestFoodPosition.Count; i++)
             {
@@ -149,10 +155,10 @@ namespace IA.Managers
             return inputs;
         }
         
-        private void StartAllAgentsMovingTime(bool instant)
+        private void StartAllAgentsMovingTime()
         {
             _agentsTime = true;
-            _agentsManager.StartAllAgentsMoving(instant);
+            _agentsManager.StartAllAgentsMoving();
         }
         
         private void StartAllAgentsActionTime()
@@ -163,26 +169,37 @@ namespace IA.Managers
         private void AllAgentsStoppedActing()
         {
             _currentTurn++;
-            if (_currentTurn > gameplayConfiguration.TurnsPerGeneration)
+            EvolutionStarted = _currentTurn > gameplayConfiguration.TurnsPerGeneration;
+            if (EvolutionStarted)
             {
                 _currentTurn = 0;
                 _currentGeneration++;
-                
-                var greenGenerationData = new List<GenerationManager.AgentGenerationData>();
-                var redGenerationData = new List<GenerationManager.AgentGenerationData>();
 
-                Debug.Log("Green Total Fitness: " + GameplayConfig.GetGreenAgentsCurrentFitness());
-                Debug.Log("Red Total Fitness: " + GameplayConfig.GetRedAgentsCurrentFitness());
+                List<GenerationManager.AgentGenerationData> greenGenerationData;
+                List<GenerationManager.AgentGenerationData> redGenerationData;
                 
                 if (_currentGeneration < gameplayConfiguration.GenerationsBeforeEvolutionStart)
                 {
                     greenGenerationData = _generationManager.GetBestOfGeneration(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
-                    redGenerationData = _generationManager.GetBestOfGeneration(GreenGenomeData, gameplayConfiguration.RedAgentsList);
+                    redGenerationData = _generationManager.GetBestOfGeneration(RedGenomeData, gameplayConfiguration.RedAgentsList);
                 }
                 else
                 {
                     greenGenerationData = _generationManager.GetNewGenerationData(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
                     redGenerationData = _generationManager.GetNewGenerationData(RedGenomeData, gameplayConfiguration.RedAgentsList);
+                }
+
+                if (redGenerationData.Count == 0 && greenGenerationData.Count > 0)
+                {
+                    var customGenomeData = new GenomeData(GreenGenomeData);
+                    customGenomeData.mutationRate *= 2; 
+                    redGenerationData = _generationManager.GetNewGenerationData(customGenomeData, gameplayConfiguration.GreenAgentsList);
+                }
+                else if (greenGenerationData.Count == 0 && redGenerationData.Count > 0)
+                {
+                    var customGenomeData = new GenomeData(RedGenomeData);
+                    customGenomeData.mutationRate *= 2; 
+                    greenGenerationData = _generationManager.GetNewGenerationData(customGenomeData, gameplayConfiguration.RedAgentsList);
                 }
                 
                 gameplayConfiguration.ClearAllAgentsAndFood();
@@ -191,8 +208,24 @@ namespace IA.Managers
                 gameplayConfiguration.CreateFood(gameplayConfiguration.StartingFood);
                 
                 OnGenerationEnd?.Invoke(_currentGeneration);
-            }
 
+                if (AutoSaveGreen && _currentGeneration % AutoSaveGreenGenerationsCount == 0)
+                {
+                    string greenTeamFilePath = "Generation " + _currentGeneration + " ~ Team Green ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
+                    var bestGreenGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.GreenAgentsList);
+                    GreenGenomeData.genome = bestGreenGenome;
+                    SaveSystem.SaveSystem.SaveToStreamingAssets(GreenGenomeData, greenTeamFilePath);
+                }
+
+                if (AutoSaveRed && _currentGeneration % AutoSaveRedGenerationsCount == 0)
+                {
+                    string redTeamFilePath = "Generation " + _currentGeneration + " ~ Team Red ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
+                    var bestRedGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.RedAgentsList);
+                    RedGenomeData.genome = bestRedGenome;
+                    SaveSystem.SaveSystem.SaveToStreamingAssets(RedGenomeData, redTeamFilePath);
+                }
+                
+            }
             _agentsTime = false;
             OnTurnEnd?.Invoke(_currentTurn);
         }
