@@ -112,7 +112,8 @@ namespace IA.Configurations
                     y = 0
                 };
 
-                agent.SetTerrainConfiguration(positionInt, this);
+                agent.SetPosition(positionInt);
+                agent.SetTeam(Agent.Team.Green);
                 
                 GreenAgentsList.Add(agent);
             }
@@ -143,7 +144,9 @@ namespace IA.Configurations
                     y = terrainCount.y - 1
                 };
                 
-                agent.SetTerrainConfiguration(positionInt, this);
+                agent.SetPosition(positionInt);
+                agent.SetTeam(Agent.Team.Red);
+                
                 RedAgentsList.Add(agent);
             }
             
@@ -177,7 +180,8 @@ namespace IA.Configurations
                     y = 0
                 };
 
-                agent.SetTerrainConfiguration(positionInt, this);
+                agent.SetPosition(positionInt);
+                agent.SetTeam(Agent.Team.Green);
                 
                 GreenAgentsList.Add(agent);
                 agent.SetIntelligence(greenGenerationData[i].genome, greenGenerationData[i].brain);
@@ -210,7 +214,9 @@ namespace IA.Configurations
                     y = terrainCount.y - 1
                 };
                 
-                agent.SetTerrainConfiguration(positionInt, this);
+                agent.SetPosition(positionInt);
+                agent.SetTeam(Agent.Team.Red);
+                
                 RedAgentsList.Add(agent);
                 agent.SetIntelligence(redGenerationData[i].genome, redGenerationData[i].brain);
                 agent.GenerationsLived = redGenerationData[i].generationsLived;
@@ -374,13 +380,134 @@ namespace IA.Configurations
             return closestFoodPositions;
         }
 
-        public void AgentAct(Agent agent, bool positiveAction)
+        public void AgentAct(Agent agent, Agent.Team team)
         {
-            if (_foodList.Exists(i => i.CurrentPosition == agent.CurrentPosition))
+
+            List<Agent> ownTeam;
+            List<Agent> enemyTeam;
+
+            if (team == Agent.Team.Green)
             {
-                var food = _foodList.Find(i => i.CurrentPosition == agent.CurrentPosition);
+                enemyTeam = RedAgentsList;
+                ownTeam = GreenAgentsList;
+            }
+            else
+            {
+                enemyTeam = GreenAgentsList;
+                ownTeam = RedAgentsList;
+            }
+
+            Vector2Int agentCurrentPosition = agent.CurrentPosition; 
+            var enemiesInThisPosition = enemyTeam.FindAll(i => i.CurrentPosition == agentCurrentPosition);
+            var alliesInThisPosition = ownTeam.FindAll(i => i.CurrentPosition == agentCurrentPosition);
+            
+            if (_foodList.Exists(i => i.CurrentPosition == agentCurrentPosition))
+            {
+                if (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
+                {
+                    foreach (var enemies in enemiesInThisPosition)
+                    {
+                        if (!enemies.ActionPositive())
+                        {
+                            enemies.ReturnToPreviousPosition();
+                        }
+                    }
+                    
+                    foreach (var allies in alliesInThisPosition)
+                    {
+                        if (!allies.ActionPositive())
+                        {
+                            allies.ReturnToPreviousPosition();
+                        }    
+                    }
+                }
+
+                while (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
+                {
+                    if (agentCurrentPosition != agent.CurrentPosition)
+                        return;
+                    
+                    var enemy = enemyTeam.Find(i => i.CurrentPosition == agentCurrentPosition);
+                    if (agent.ActionPositive() && enemy.ActionPositive())
+                    {
+                        int random = Random.Range(0, 2);
+                        if (random == 0)
+                        {
+                            Debug.Log("Agent " + enemy.name + " Killed.");
+                            enemyTeam.Remove(enemy);
+                            Destroy(enemy.gameObject);
+                        }
+                        else
+                        {
+                            Debug.Log("Agent " + agent.name + " Killed.");
+                            ownTeam.Remove(agent);
+                            Destroy(agent.gameObject);
+                            return;
+                        }
+                    }
+                }
+                var food = _foodList.Find(i => i.CurrentPosition == agentCurrentPosition);
                 _foodList.Remove(food);
                 food.GetEaten(agent);
+            }
+            else
+            {
+                while (enemyTeam.Exists(i => i.CurrentPosition == agentCurrentPosition))
+                {
+                    var enemy = enemyTeam.Find(i => i.CurrentPosition == agentCurrentPosition);
+                    if (!agent.ActionPositive() && !enemy.ActionPositive())
+                    {
+                        agent.ReturnToPreviousPosition();
+                        enemy.ReturnToPreviousPosition();
+                    }
+                    else if (agent.ActionPositive() && enemy.ActionPositive())
+                    {
+                        int random = Random.Range(0, 2);
+                        if (random == 0)
+                        {
+                            Debug.Log("Agent " + enemy.name + " Killed.");
+                            enemyTeam.Remove(enemy);
+                            Destroy(enemy.gameObject);
+                        }
+                        else
+                        {
+                            Debug.Log("Agent " + agent.name + " Killed.");
+                            ownTeam.Remove(agent);
+                            Destroy(agent.gameObject);
+                            return;
+                        }
+                    }
+                    else if(!agent.ActionPositive())
+                    {
+                        int random = Random.Range(0, 4);
+                        if (random == 0)
+                        {
+                            agent.ReturnToPreviousPosition();
+                        }
+                        else
+                        {
+                            Debug.Log("Agent " + agent.name + " Killed.");
+                            ownTeam.Remove(agent);
+                            Destroy(agent.gameObject);
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        int random = Random.Range(0, 4);
+                        if (random == 0)
+                        {
+                            enemy.ReturnToPreviousPosition();
+                        }
+                        else
+                        {
+                            Debug.Log("Agent " + enemy.name + " Killed.");
+                            enemyTeam.Remove(enemy);
+                            Destroy(enemy.gameObject);
+                        }
+                        return;
+                    }
+                }
             }
         }
         
