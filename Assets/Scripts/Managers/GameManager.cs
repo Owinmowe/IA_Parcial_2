@@ -92,7 +92,7 @@ namespace IA.Managers
             _agentsTime = false;
             
             gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
-            gameplayConfiguration.CreateFood();
+            gameplayConfiguration.CreateStartingFood();
             
             CreateBrainsWithSavedData();
         }
@@ -188,7 +188,7 @@ namespace IA.Managers
                 gameplayConfiguration.ClearAllAgentsAndFood();
                     
                 gameplayConfiguration.CreateAgents(greenGenerationData, redGenerationData);
-                gameplayConfiguration.CreateFood();
+                gameplayConfiguration.CreateFood(gameplayConfiguration.StartingFood);
                 
                 OnGenerationEnd?.Invoke(_currentGeneration);
             }

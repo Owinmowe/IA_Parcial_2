@@ -67,6 +67,8 @@ namespace IA.Configurations
             get => generationsBeforeEvolutionStart;
             set => generationsBeforeEvolutionStart = value;
         }
+        
+        public int StartingFood { get; set; }
 
         public void CreateTerrain(Transform parent)
         {
@@ -216,11 +218,12 @@ namespace IA.Configurations
             
         }
         
-        public void CreateFood()
+        public void CreateStartingFood()
         {
+            StartingFood = _greenAgentsAmount + _redAgentsAmount;
             _foodList.Clear();
-            _foodList = new List<Food>(_greenAgentsAmount + _redAgentsAmount);
-            for (int i = 0; i < _greenAgentsAmount + _redAgentsAmount; i++)
+            _foodList = new List<Food>();
+            for (int i = 0; i < StartingFood; i++)
             {
                 Vector3 position = Vector3.zero;
                 Vector2Int intPosition = new Vector2Int
@@ -245,6 +248,35 @@ namespace IA.Configurations
             }
         }
 
+        public void CreateFood(int foodAmount)
+        {
+            _foodList.Clear();
+            _foodList = new List<Food>(foodAmount);
+            for (int i = 0; i < foodAmount; i++)
+            {
+                Vector3 position = Vector3.zero;
+                Vector2Int intPosition = new Vector2Int
+                {
+                    x = Random.Range(0, terrainCount.x),
+                    y = Random.Range(1, terrainCount.y - 1)
+                };
+
+                if (!_foodList.Exists(food => food.CurrentPosition == intPosition))
+                {
+                    position.x = eachTerrainSize.x * intPosition.x;
+                    position.z = eachTerrainSize.z * intPosition.y;
+                    position += foodSpawnOffset;
+                    var food = Instantiate(foodPrefab, position, Quaternion.identity);
+                    food.CurrentPosition = intPosition;
+                    _foodList.Add(food);
+                }
+                else
+                {
+                    i--;
+                }
+            }
+        }
+        
         public void ClearAllAgentsAndFood()
         {
             foreach (var food in _foodList)
