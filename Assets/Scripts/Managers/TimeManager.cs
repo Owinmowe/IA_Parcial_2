@@ -11,6 +11,9 @@ namespace IA.Managers
 
         private int _currentCycleAmount = 0;
         private int _maxCycleAmount = 0;
+
+        public void Reset() => _currentTime = 0.0f;
+        
         public void SetCyclesAmount(int amount) => _maxCycleAmount = amount;
         
         public void Update(float deltaTime)

@@ -1,9 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using IA.Gameplay;
 using IA.Configurations;
-using Unity.VisualScripting;
 
 namespace IA.Managers
 {
@@ -93,6 +93,12 @@ namespace IA.Managers
         
         public void StartSimulation()
         {
+            StartCoroutine(StartingSimulation());
+        }
+
+        private IEnumerator StartingSimulation()
+        {
+            yield return null;
             Started = true;
             Paused = false;
             _agentsTime = false;
@@ -122,6 +128,7 @@ namespace IA.Managers
             Started = false;
             Paused = true;
             gameplayConfiguration.ClearAllAgentsAndFood();
+            _timeManager.Reset();
             
             _currentTurn = 0;
             _currentGeneration = 0;
