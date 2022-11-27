@@ -4975,14 +4975,14 @@ MonoBehaviour:
     slider: {fileID: 4466255008902787895}
     textComponent: {fileID: 1727450150720695333}
     textBeforeValue: 'Population Count: '
-    defaultValue: 5
+    defaultValue: 100
     minValue: 1
     maxValue: 0
   inputConfiguration:
     slider: {fileID: 8213408184860610373}
     textComponent: {fileID: 3168346055881870692}
     textBeforeValue: 'Inputs Count: '
-    defaultValue: 4
+    defaultValue: 14
     minValue: 1
     maxValue: 50
   hiddenLayerConfiguration:
@@ -5003,7 +5003,7 @@ MonoBehaviour:
     slider: {fileID: 1882517984625749514}
     textComponent: {fileID: 875061602716720005}
     textBeforeValue: 'Neurons per Hidden Layer Count: '
-    defaultValue: 10
+    defaultValue: 30
     minValue: 2
     maxValue: 100
   biasConfiguration:
@@ -5017,21 +5017,21 @@ MonoBehaviour:
     slider: {fileID: 6080709954918567679}
     textComponent: {fileID: 8928361590530838226}
     textBeforeValue: 'Sigmoid Slope: '
-    defaultValue: 0.01
+    defaultValue: 0.5
     minValue: 0.01
     maxValue: 1
   mutationRateConfiguration:
     slider: {fileID: 842414000535081208}
     textComponent: {fileID: 659568832652134077}
     textBeforeValue: 'Mutation Rate: '
-    defaultValue: 0
+    defaultValue: 0.1
     minValue: 0
     maxValue: 1
   mutationChanceConfiguration:
     slider: {fileID: 538406387570884525}
     textComponent: {fileID: 5577830780059464749}
     textBeforeValue: 'Mutation Chance: '
-    defaultValue: 0
+    defaultValue: 10
     minValue: 0
     maxValue: 100
 --- !u!1 &7685978351866092320

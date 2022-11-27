@@ -123,14 +123,28 @@ namespace IA.Managers
 
         public float[] GetInputs(Agent agent)
         {
-            var inputs = new float[4];
+            var inputs = new float[14];
 
-            var closestFoodPosition = gameplayConfiguration.GetClosestFood(agent.CurrentPosition);
+            int inputIndex = 0;
+            inputs[inputIndex] = agent.CurrentPosition.x;
+            inputIndex++;
+            inputs[inputIndex] = agent.CurrentPosition.y;
 
-            inputs[0] = agent.CurrentPosition.x;
-            inputs[1] = agent.CurrentPosition.y;
-            inputs[2] = closestFoodPosition.x;
-            inputs[3] = closestFoodPosition.y;
+            var closestFoodPosition = gameplayConfiguration.GetClosestFoods(agent.CurrentPosition, 5);
+
+            for (int i = 0; i < closestFoodPosition.Count; i++)
+            {
+                inputIndex++;
+                inputs[inputIndex] = closestFoodPosition[i].x;
+                inputIndex++;
+                inputs[inputIndex] = closestFoodPosition[i].y;
+            }
+
+            inputIndex++;
+            inputs[inputIndex] = agent.FoodEaten;
+            
+            inputIndex++;
+            inputs[inputIndex] = agent.Fitness;
             
             return inputs;
         }
@@ -153,13 +167,24 @@ namespace IA.Managers
             {
                 _currentTurn = 0;
                 _currentGeneration++;
-
-                List<GenerationManager.AgentGenerationData> greenGenerationData =
-                    _generationManager.GetNewGenerationData(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
                 
-                List<GenerationManager.AgentGenerationData> redGenerationData =
-                    _generationManager.GetNewGenerationData(RedGenomeData, gameplayConfiguration.RedAgentsList);
-                    
+                var greenGenerationData = new List<GenerationManager.AgentGenerationData>();
+                var redGenerationData = new List<GenerationManager.AgentGenerationData>();
+
+                Debug.Log("Green Total Fitness: " + GameplayConfig.GetGreenAgentsCurrentFitness());
+                Debug.Log("Red Total Fitness: " + GameplayConfig.GetRedAgentsCurrentFitness());
+                
+                if (_currentGeneration < gameplayConfiguration.GenerationsBeforeEvolutionStart)
+                {
+                    greenGenerationData = _generationManager.GetBestOfGeneration(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
+                    redGenerationData = _generationManager.GetBestOfGeneration(GreenGenomeData, gameplayConfiguration.RedAgentsList);
+                }
+                else
+                {
+                    greenGenerationData = _generationManager.GetNewGenerationData(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
+                    redGenerationData = _generationManager.GetNewGenerationData(RedGenomeData, gameplayConfiguration.RedAgentsList);
+                }
+                
                 gameplayConfiguration.ClearAllAgentsAndFood();
                     
                 gameplayConfiguration.CreateAgents(greenGenerationData, redGenerationData);

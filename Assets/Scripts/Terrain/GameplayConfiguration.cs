@@ -26,10 +26,31 @@ namespace IA.Configurations
         
         [Header("General")]
         [SerializeField] private int turnsPerGeneration = 500;
+        [SerializeField] private int generationsBeforeEvolutionStart = 20;
         
         public List<Agent> RedAgentsList { get; private set; }
         public List<Agent> GreenAgentsList { get; private set; }
 
+        public float GetRedAgentsCurrentFitness()
+        {
+            float fitness = 0;
+            foreach (var agent in RedAgentsList)
+            {
+                fitness += agent.Fitness;
+            }
+            return fitness;
+        }
+
+        public float GetGreenAgentsCurrentFitness()
+        {
+            float fitness = 0;
+            foreach (var agent in GreenAgentsList)
+            {
+                fitness += agent.Fitness;
+            }
+            return fitness;
+        }
+        
         private int _greenAgentsAmount = 0;
         private int _redAgentsAmount = 0;
         
@@ -39,6 +60,12 @@ namespace IA.Configurations
         {
             get => turnsPerGeneration;
             set => turnsPerGeneration = value;
+        }
+
+        public int GenerationsBeforeEvolutionStart
+        {
+            get => generationsBeforeEvolutionStart;
+            set => generationsBeforeEvolutionStart = value;
         }
 
         public void CreateTerrain(Transform parent)
@@ -281,23 +308,38 @@ namespace IA.Configurations
             return position;
         }
 
-        public Vector2Int GetClosestFood(Vector2Int agentPosition)
+        public List<Vector2Int> GetClosestFoods(Vector2Int agentPosition, int amount)
         {
-            Vector2Int closestFoodPosition = agentPosition;
-            int closestFoodDistance = terrainCount.x + terrainCount.y + 1;
+            List<Vector2Int> closestFoodPositions = new List<Vector2Int>();
 
-            foreach (var food in _foodList)
+            List<Food> closestFoods = new List<Food>();
+            closestFoods.AddRange(_foodList);
+            closestFoods.Sort((a, b) => GetManhattanDistance(agentPosition, a.CurrentPosition) < GetManhattanDistance(agentPosition, b.CurrentPosition) ? 0 : 1);
+
+            for (int i = 0; i < amount; i++)
             {
-                var newPosition = food.CurrentPosition;
-                int newClosestFoodDistance = GetManhattanDistance(agentPosition, newPosition);
-                if (newClosestFoodDistance < closestFoodDistance)
+                if (i < closestFoods.Count)
                 {
-                    closestFoodDistance = newClosestFoodDistance;
-                    closestFoodPosition = newPosition;
+                    closestFoodPositions.Add(closestFoods[i].CurrentPosition);
                 }
             }
 
-            return closestFoodPosition;
+            if (closestFoodPositions.Count == 0)
+            {
+                for (int i = 0; i < amount; i++)
+                {
+                    closestFoodPositions.Add(Vector2Int.zero);
+                }
+            }
+            else if (closestFoodPositions.Count < amount)
+            {
+                for (int i = 0; i < amount - closestFoodPositions.Count; i++)
+                {
+                    closestFoodPositions.Add(closestFoodPositions[0]);
+                }
+            }
+            
+            return closestFoodPositions;
         }
 
         public void AgentAct(Agent agent, bool positiveAction)

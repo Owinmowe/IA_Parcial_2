@@ -14,6 +14,8 @@ namespace IA.UI
         [SerializeField] private Button simulateButton;
         [SerializeField] private TextMeshProUGUI turnsPerGenerationText;
         [SerializeField] private Slider turnsPerGenerationSlider;
+        [SerializeField] private TextMeshProUGUI generationsBeforeEvolutionStartText;
+        [SerializeField] private Slider generationsBeforeEvolutionStartSlider;
 
         private void Awake()
         {
@@ -28,10 +30,10 @@ namespace IA.UI
         private void Start()
         {
             GameManager.Instance.SimulationSpeed = 1f;
-            SetTurnsPerGenerationUI();
+            SetPreGameplayUI();
         }
 
-        private void SetTurnsPerGenerationUI()
+        private void SetPreGameplayUI()
         {
             turnsPerGenerationSlider.wholeNumbers = true;
             
@@ -43,6 +45,18 @@ namespace IA.UI
             {
                 GameManager.Instance.GameplayConfig.TurnsPerGeneration = (int)value;
                 turnsPerGenerationText.text = "Turns Per Generation: " + value;
+            });
+
+            generationsBeforeEvolutionStartSlider.wholeNumbers = true;
+            
+            int currentGenerationsBeforeEvolutionStart = GameManager.Instance.GameplayConfig.GenerationsBeforeEvolutionStart;
+            generationsBeforeEvolutionStartSlider.SetValueWithoutNotify(currentGenerationsBeforeEvolutionStart);
+            generationsBeforeEvolutionStartText.text = "Generations before evolution start: " + currentGenerationsBeforeEvolutionStart;
+            
+            generationsBeforeEvolutionStartSlider.onValueChanged.AddListener(delegate(float value)
+            {
+                GameManager.Instance.GameplayConfig.GenerationsBeforeEvolutionStart = (int)value;
+                generationsBeforeEvolutionStartText.text = "Generations before evolution start: " + value;
             });
         }
         

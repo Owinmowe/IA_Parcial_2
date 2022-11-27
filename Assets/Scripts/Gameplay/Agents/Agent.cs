@@ -80,15 +80,15 @@ namespace IA.Gameplay
         private void Move(float output, bool instant)
         {
             Vector3 newPosition = transform.position;
-            if (output < .8f)
+            if (output > .8f)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Down);
             }
-            else if (output < .6f)
+            else if (output > .6f)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Right);
             }
-            else if (output < .4f)
+            else if (output > .4f)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Left);
             }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using IA.Gameplay;
 
 namespace IA.Managers
@@ -97,8 +98,59 @@ namespace IA.Managers
 
             return generationDataList;
         }
-        
-        
+
+        public List<AgentGenerationData> GetBestOfGeneration(GenomeData genomeData, List<Agent> agentsList)
+        {
+	        List<AgentGenerationData> generationDataList = new List<AgentGenerationData>();
+	        
+	        agentsList.Sort((a, b) => a.Fitness > b.Fitness ? 0 : 1);
+
+	        Genome child1Genome;
+	        Genome child2Genome;
+
+	        Crossover(agentsList[0].AgentGenome, agentsList[1].AgentGenome, out child1Genome, out child2Genome,
+		        genomeData.mutationChance, genomeData.mutationRate);
+	        
+	        for (int i = 0; i < agentsList.Count / 2; i++)
+	        {
+		        AgentGenerationData child1Data = new AgentGenerationData
+		        {
+			        brain = CreateBaseBrain(genomeData, child1Genome),
+			        genome = child1Genome,
+			        generationsLived = 0,
+			        foodEaten = 0,
+			        fitness = 0
+		        };
+		        
+		        AgentGenerationData child2Data = new AgentGenerationData
+		        {
+			        brain = CreateBaseBrain(genomeData, child2Genome),
+			        genome = child2Genome,
+			        generationsLived = 0,
+			        foodEaten = 0,
+			        fitness = 0
+		        };
+		        
+		        generationDataList.Add(child1Data);
+		        generationDataList.Add(child2Data);
+	        }
+
+	        if (agentsList.Count > generationDataList.Count)
+	        {
+		        AgentGenerationData child1Data = new AgentGenerationData
+		        {
+			        brain = CreateBaseBrain(genomeData, child1Genome),
+			        genome = child1Genome,
+			        generationsLived = 0,
+			        foodEaten = 0,
+			        fitness = 0
+		        };
+		        generationDataList.Add(child1Data);
+	        }
+	        
+	        return generationDataList;
+        }
+
 
         private void Crossover(Genome mom, Genome dad, out Genome child1, out Genome child2, float mutationChance, float mutationRate)
         {
