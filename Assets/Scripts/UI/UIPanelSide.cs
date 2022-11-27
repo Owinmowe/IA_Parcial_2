@@ -1,6 +1,5 @@
 using System;
 using IA.Managers;
-using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +13,7 @@ namespace IA.UI
         [SerializeField] private GenomeTeam team;
         [Space(10)]
         
+        [Header("General Configurations")]
         [SerializeField] private IntValueConfigurationSlider populationConfiguration;
         [SerializeField] private IntValueConfigurationSlider inputConfiguration;
         [SerializeField] private IntValueConfigurationSlider hiddenLayerConfiguration;
@@ -24,11 +24,60 @@ namespace IA.UI
         [SerializeField] private FloatValueConfigurationSlider mutationRateConfiguration;
         [SerializeField] private FloatValueConfigurationSlider mutationChanceConfiguration;
 
+        [Header("Save/Load File")] 
+        [SerializeField] private TMP_InputField loadPathInputField;
+        [SerializeField] private Button loadButton;
+        [SerializeField] private Toggle autoSaveActive;
+        [SerializeField] private TextMeshProUGUI autoSaveGenerationsCountText; 
+        [SerializeField] private Slider autoSaveGenerationsCountSlider;
+        
         private GenomeData _data;
         private void Start()
         {
             _data = team == GenomeTeam.Green ? GameManager.Instance.GreenGenomeData : GameManager.Instance.RedGenomeData;
 
+            SetAllUI();
+            
+            loadButton.onClick.AddListener(delegate
+            {
+                _data = SaveSystem.SaveSystem.LoadFromStreamingAssets<GenomeData>(loadPathInputField.text);
+                SetAllUI();
+            });
+            
+            autoSaveActive.onValueChanged.AddListener(delegate(bool active)
+            {
+                autoSaveGenerationsCountSlider.gameObject.SetActive(active);
+                autoSaveGenerationsCountText.gameObject.SetActive(active);
+                autoSaveGenerationsCountText.text = "Generations Between AutoSave: " + autoSaveGenerationsCountSlider.value;
+                if (team == GenomeTeam.Green)
+                {
+                    GameManager.Instance.AutoSaveGreen = active;
+                    GameManager.Instance.AutoSaveGreenGenerationsCount = (int)autoSaveGenerationsCountSlider.value;
+                }
+                else
+                {
+                    GameManager.Instance.AutoSaveRed = active;
+                    GameManager.Instance.AutoSaveRedGenerationsCount = (int)autoSaveGenerationsCountSlider.value;
+                }
+            });
+            
+            autoSaveGenerationsCountSlider.onValueChanged.AddListener(delegate(float value)
+            {
+                autoSaveGenerationsCountText.text = "Generations Between AutoSave: " + value;
+                if (team == GenomeTeam.Green)
+                {
+                    GameManager.Instance.AutoSaveGreenGenerationsCount = (int)value;
+                }
+                else
+                {
+                    GameManager.Instance.AutoSaveRedGenerationsCount = (int)value;
+                }
+            });
+            
+        }
+
+        private void SetAllUI()
+        {
             SetPopulationCountSlider();
             SetInputCountSlider();
             SetHiddenLayerCountSlider();
@@ -39,7 +88,7 @@ namespace IA.UI
             SetMutationRateSlider();
             SetMutationChanceSlider();
         }
-
+        
         private void SetPopulationCountSlider()
         {
             populationConfiguration.SetSlider(null, null, GameManager.Instance.GameplayConfig.TerrainCount.x);

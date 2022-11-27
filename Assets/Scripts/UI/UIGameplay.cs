@@ -13,7 +13,6 @@ namespace IA.UI
         [SerializeField] private GameObject panelPreGameplay;
         [SerializeField] private Button playPauseButton;
         [SerializeField] private Button stopSimulationButton;
-        [SerializeField] private Button animationsButton;
         
         [Header("Simulation Speed")]
         [SerializeField] private Slider simulationSpeedSlider;
@@ -22,9 +21,12 @@ namespace IA.UI
         [Header("Simulation Information")]
         [SerializeField] private TextMeshProUGUI currentGenerationText;
         [SerializeField] private TextMeshProUGUI currentTurnText;
+        [SerializeField] private TextMeshProUGUI currentGreenAgentsText;
+        [SerializeField] private TextMeshProUGUI currentRedAgentsText;
+        [SerializeField] private Button textsButton;
         
         private TextMeshProUGUI _playPauseButtonText;
-        private TextMeshProUGUI _animationsButtonText;
+        private TextMeshProUGUI _textsButtonText;
 
         private void Awake()
         {
@@ -37,13 +39,13 @@ namespace IA.UI
                 _playPauseButtonText.text = GameManager.Instance.Paused ? "Resume Simulation" : "Pause Simulation";
             });
             
-            _animationsButtonText = animationsButton.GetComponentInChildren<TextMeshProUGUI>();
-            _animationsButtonText.text = "Remove Animations";
+            _textsButtonText = textsButton.GetComponentInChildren<TextMeshProUGUI>();
+            _textsButtonText.text = "Remove Text";
             
-            animationsButton.onClick.AddListener(delegate
+            textsButton.onClick.AddListener(delegate
             {
-                GameManager.Instance.AnimationsOn = !GameManager.Instance.AnimationsOn;
-                _animationsButtonText.text = GameManager.Instance.AnimationsOn ? "Remove Animations" : "Add Animations";
+                GameManager.Instance.TextOn = !GameManager.Instance.TextOn;
+                _textsButtonText.text = GameManager.Instance.TextOn ? "Remove Text" : "Add Text";
             });
             
             stopSimulationButton.onClick.AddListener(delegate
@@ -64,11 +66,19 @@ namespace IA.UI
             GameManager.Instance.OnTurnEnd += delegate(int i)
             {
                 currentTurnText.text = "Current Turn: " + i;
+                currentGreenAgentsText.text =
+                    "Current Green Agents: " + GameManager.Instance.GameplayConfig.GreenAgentsList.Count;
+                currentRedAgentsText.text =
+                    "Current Red Agents: " + GameManager.Instance.GameplayConfig.RedAgentsList.Count;
             };
             
             GameManager.Instance.OnGenerationEnd += delegate(int i)
             {
                 currentGenerationText.text = "Current Generation: " + i;
+                currentGreenAgentsText.text =
+                    "Current Green Agents: " + GameManager.Instance.GameplayConfig.GreenAgentsList.Count;
+                currentRedAgentsText.text =
+                    "Current Red Agents: " + GameManager.Instance.GameplayConfig.RedAgentsList.Count;
             };
             
         }
