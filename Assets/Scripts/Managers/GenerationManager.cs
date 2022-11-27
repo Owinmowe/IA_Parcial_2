@@ -116,7 +116,7 @@ namespace IA.Managers
             return newGenerationDataList;
         }
 
-        public List<AgentGenerationData> GetBestOfGeneration(GenomeData genomeData, List<Agent> agentsList)
+        public List<AgentGenerationData> GetEliteOfGeneration(GenomeData genomeData, List<Agent> agentsList)
         {
 	        List<AgentGenerationData> generationDataList = new List<AgentGenerationData>();
 	        
