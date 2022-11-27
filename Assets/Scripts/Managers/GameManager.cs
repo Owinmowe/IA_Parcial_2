@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using IA.Gameplay;
 using IA.Configurations;
@@ -98,7 +99,7 @@ namespace IA.Managers
 
         private void CreateBrainsWithSavedData()
         {
-            var botAgents = gameplayConfiguration.GreenAgentList;
+            var botAgents = gameplayConfiguration.GreenAgentsList;
             foreach (var agent in botAgents)
             {
                 _generationManager.CreateAgentBrains(agent, GreenGenomeData);
@@ -110,7 +111,6 @@ namespace IA.Managers
                 _generationManager.CreateAgentBrains(agent, RedGenomeData);
             }
         }
-
         public void StopSimulation()
         {
             Started = false;
@@ -153,13 +153,18 @@ namespace IA.Managers
             {
                 _currentTurn = 0;
                 _currentGeneration++;
+
+                List<GenerationManager.AgentGenerationData> greenGenerationData =
+                    _generationManager.GetNewGenerationData(GreenGenomeData, gameplayConfiguration.GreenAgentsList);
+                
+                List<GenerationManager.AgentGenerationData> redGenerationData =
+                    _generationManager.GetNewGenerationData(RedGenomeData, gameplayConfiguration.RedAgentsList);
                     
                 gameplayConfiguration.ClearAllAgentsAndFood();
                     
-                gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
+                gameplayConfiguration.CreateAgents(greenGenerationData, redGenerationData);
                 gameplayConfiguration.CreateFood();
                 
-                CreateBrainsWithSavedData();
                 OnGenerationEnd?.Invoke(_currentGeneration);
             }
 

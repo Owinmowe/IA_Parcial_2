@@ -23,9 +23,9 @@ namespace IA.Gameplay
         public NeuralNetwork AgentBrain { get; private set; }
         public int GenerationsLived { get; set; }
         public int FoodEaten { get; private set; }
+        public float Fitness { get; set; }
 
         private float[] _inputs;
-        private float _fitness = 0;
 
         private float _moveInput;
         private float _actionInput;
@@ -139,7 +139,7 @@ namespace IA.Gameplay
         public void Eat(int bonusFitness)
         {
             FoodEaten++;
-            _fitness += bonusFitness * fitnessCurve.Evaluate(FoodEaten);
+            Fitness += bonusFitness * fitnessCurve.Evaluate(FoodEaten);
         }
         
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using IA.Gameplay;
+using IA.Managers;
 using Random = UnityEngine.Random;
 
 namespace IA.Configurations
@@ -27,7 +28,7 @@ namespace IA.Configurations
         [SerializeField] private int turnsPerGeneration = 500;
         
         public List<Agent> RedAgentsList { get; private set; }
-        public List<Agent> GreenAgentList { get; private set; }
+        public List<Agent> GreenAgentsList { get; private set; }
 
         private int _greenAgentsAmount = 0;
         private int _redAgentsAmount = 0;
@@ -57,8 +58,8 @@ namespace IA.Configurations
         public void CreateAgents(int greenAgentAmount, int redAgentAmount)
         {
             _greenAgentsAmount = greenAgentAmount;
-            GreenAgentList.Clear();
-            GreenAgentList = new List<Agent>(greenAgentAmount);
+            GreenAgentsList.Clear();
+            GreenAgentsList = new List<Agent>(greenAgentAmount);
             
             List<int> possiblePositions = new List<int>(terrainCount.x);
             for (int i = 0; i < terrainCount.x; i++)
@@ -84,7 +85,7 @@ namespace IA.Configurations
 
                 agent.SetTerrainConfiguration(positionInt, this);
                 
-                GreenAgentList.Add(agent);
+                GreenAgentsList.Add(agent);
             }
             
             _redAgentsAmount = redAgentAmount;
@@ -119,6 +120,75 @@ namespace IA.Configurations
             
         }
 
+        public void CreateAgents(List<GenerationManager.AgentGenerationData> greenGenerationData, List<GenerationManager.AgentGenerationData> redGenerationData)
+        {
+            _greenAgentsAmount = greenGenerationData.Count;
+            GreenAgentsList.Clear();
+            GreenAgentsList = new List<Agent>(greenGenerationData.Count);
+            
+            List<int> possiblePositions = new List<int>(terrainCount.x);
+            for (int i = 0; i < terrainCount.x; i++)
+            {
+                possiblePositions.Add(i);
+            }
+            ShuffleList(possiblePositions);
+
+            for (int i = 0; i < greenGenerationData.Count; i++)
+            {
+                Vector3 position = Vector3.zero;
+                position.x = possiblePositions[i];
+                position.z = 0;
+                position += agentSpawnOffset;
+                
+                var agent = Instantiate(botAgentPrefabs, position, Quaternion.identity);
+
+                Vector2Int positionInt = new Vector2Int
+                {
+                    x = possiblePositions[i],
+                    y = 0
+                };
+
+                agent.SetTerrainConfiguration(positionInt, this);
+                
+                GreenAgentsList.Add(agent);
+                agent.SetIntelligence(greenGenerationData[i].genome, greenGenerationData[i].brain);
+                agent.GenerationsLived = greenGenerationData[i].generationsLived;
+            }
+            
+            _redAgentsAmount = redGenerationData.Count;
+            RedAgentsList.Clear();
+            RedAgentsList = new List<Agent>(redGenerationData.Count);
+            
+            possiblePositions.Clear();
+            for (int i = 0; i < terrainCount.x; i++)
+            {
+                possiblePositions.Add(i);
+            }
+            ShuffleList(possiblePositions);
+            
+            for (int i = 0; i < redGenerationData.Count; i++)
+            {
+                Vector3 position = Vector3.zero;
+                position.x = possiblePositions[i];
+                position.z = (terrainCount.y - 1) * eachTerrainSize.z;
+                position += agentSpawnOffset;
+                
+                var agent = Instantiate(topAgentPrefabs, position, Quaternion.identity);
+                
+                Vector2Int positionInt = new Vector2Int
+                {
+                    x = possiblePositions[i],
+                    y = terrainCount.y - 1
+                };
+                
+                agent.SetTerrainConfiguration(positionInt, this);
+                RedAgentsList.Add(agent);
+                agent.SetIntelligence(redGenerationData[i].genome, redGenerationData[i].brain);
+                agent.GenerationsLived = redGenerationData[i].generationsLived;
+            }
+            
+        }
+        
         public void CreateFood()
         {
             _foodList.Clear();
@@ -156,11 +226,11 @@ namespace IA.Configurations
             }
             _foodList.Clear();
             
-            foreach (var botAgent in GreenAgentList)
+            foreach (var botAgent in GreenAgentsList)
             {
                 Destroy(botAgent.gameObject);
             }
-            GreenAgentList.Clear();
+            GreenAgentsList.Clear();
             
             foreach (var topAgent in RedAgentsList)
             {
