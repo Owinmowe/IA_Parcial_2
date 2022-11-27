@@ -136,7 +136,7 @@ namespace IA.Managers
 
         public float[] GetInputs(Agent agent)
         {
-            var inputs = new float[24];
+            var inputs = new float[44];
 
             int inputIndex = 0;
             inputs[inputIndex] = agent.CurrentPosition.x;

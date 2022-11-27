@@ -6499,7 +6499,7 @@ MonoBehaviour:
     slider: {fileID: 8213408184860610373}
     textComponent: {fileID: 3168346055881870692}
     textBeforeValue: 'Inputs Count: '
-    defaultValue: 24
+    defaultValue: 44
     minValue: 1
     maxValue: 50
   hiddenLayerConfiguration:

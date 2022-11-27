@@ -364,19 +364,25 @@ namespace IA.Configurations
 
             if (closestFoodPositions.Count == 0)
             {
-                for (int i = 0; i < amount; i++)
+                for (int i = 0; i < amount * 2; i++)
                 {
-                    closestFoodPositions.Add(Vector2Int.zero);
+                    closestFoodPositions.Add(Vector2Int.one * -1);
                 }
             }
-            else if (closestFoodPositions.Count < amount)
+            else
             {
-                for (int i = 0; i < amount - closestFoodPositions.Count; i++)
+                if (closestFoodPositions.Count < amount)
+                {
+                    for (int i = 0; i < amount - closestFoodPositions.Count; i++)
+                    {
+                        closestFoodPositions.Add(closestFoodPositions[0]);
+                    }
+                }
+                for (int i = 0; i < amount; i++)
                 {
                     closestFoodPositions.Add(closestFoodPositions[0]);
                 }
             }
-            
             return closestFoodPositions;
         }
 
