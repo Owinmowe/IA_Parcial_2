@@ -131,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 10
   graphicRenderer: {fileID: 3630164555986658395}
-  timeToDie: 2
+  timeToDie: 0
   fitnessCurve:
     serializedVersion: 2
     m_Curve:

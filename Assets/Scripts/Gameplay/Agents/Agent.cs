@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using IA.Configurations;
 using IA.Managers;
 using UnityEngine;
@@ -35,7 +37,7 @@ namespace IA.Gameplay
 
         private GameplayConfiguration _gameplayConfiguration;
         private Movement.MoveDirection _previousPositionDirection;
-        private float _moveInput;
+        private List<float> _moveInput = new List<float>(4);
         private float _actionInput;
         private Team _team;
 
@@ -82,8 +84,12 @@ namespace IA.Gameplay
 
             float[] output = AgentBrain.Synapsis(_inputs);
 
-            _moveInput = output[0];
-            _actionInput = output[1];
+            _moveInput.Clear();
+            _moveInput.Add(output[0]);
+            _moveInput.Add(output[1]);
+            _moveInput.Add(output[2]);
+            _moveInput.Add(output[3]);
+            _actionInput = output[4];
         }
 
         public void Die()
@@ -99,26 +105,28 @@ namespace IA.Gameplay
             ReturnToPreviousPosition();
         }
 
-        private void Move(float output)
+        private void Move(List<float> output)
         {
             Vector3 newPosition = transform.position;
 
-            if (output > .8f)
+            int index = output.IndexOf(output.Max());
+            
+            if (index == 0)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Down);
                 _previousPositionDirection = Movement.MoveDirection.Up;
             }
-            else if (output > .6f)
+            else if (index == 1)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Right);
                 _previousPositionDirection = Movement.MoveDirection.Left;
             }
-            else if (output > .4f)
+            else if (index == 2)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Left);
                 _previousPositionDirection = Movement.MoveDirection.Right;
             }
-            else if (output < .2f)
+            else if (index == 3)
             {
                 newPosition = _gameplayConfiguration.GetPostMovementPosition(this, Movement.MoveDirection.Up);
                 _previousPositionDirection = Movement.MoveDirection.Down;

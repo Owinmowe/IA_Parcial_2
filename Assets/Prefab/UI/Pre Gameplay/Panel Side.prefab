@@ -6513,7 +6513,7 @@ MonoBehaviour:
     slider: {fileID: 8614287812010809562}
     textComponent: {fileID: 1696725808476218433}
     textBeforeValue: 'Outputs Count: '
-    defaultValue: 2
+    defaultValue: 5
     minValue: 1
     maxValue: 50
   neuronsPerHiddenLayerConfiguration:

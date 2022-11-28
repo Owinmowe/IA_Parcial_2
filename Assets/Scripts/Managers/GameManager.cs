@@ -104,6 +104,7 @@ namespace IA.Managers
             Started = true;
             Paused = false;
             _agentsTime = false;
+            EvolutionStarted = _currentGeneration >= gameplayConfiguration.GenerationsBeforeEvolutionStart;
             
             gameplayConfiguration.CreateAgents(GreenGenomeData.populationCount, RedGenomeData.populationCount);
             gameplayConfiguration.CreateStartingFood();
@@ -178,11 +179,11 @@ namespace IA.Managers
         private void AllAgentsStoppedActing()
         {
             _currentTurn++;
-            EvolutionStarted = _currentTurn > gameplayConfiguration.TurnsPerGeneration;
-            if (EvolutionStarted)
+            if ( _currentTurn > gameplayConfiguration.TurnsPerGeneration)
             {
                 _currentTurn = 0;
                 _currentGeneration++;
+                EvolutionStarted = _currentGeneration >= gameplayConfiguration.GenerationsBeforeEvolutionStart;
 
                 List<GenerationManager.AgentGenerationData> greenGenerationData;
                 List<GenerationManager.AgentGenerationData> redGenerationData;
