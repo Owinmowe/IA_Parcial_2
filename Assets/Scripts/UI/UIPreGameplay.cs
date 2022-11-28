@@ -16,6 +16,7 @@ namespace IA.UI
         [SerializeField] private Slider turnsPerGenerationSlider;
         [SerializeField] private TextMeshProUGUI generationsBeforeEvolutionStartText;
         [SerializeField] private Slider generationsBeforeEvolutionStartSlider;
+        [SerializeField] private Toggle reviveSimulationToggle;
 
         private void Awake()
         {
@@ -25,6 +26,12 @@ namespace IA.UI
                 panelGameplay.SetActive(true);
                 gameObject.SetActive(false);
             });
+            
+            reviveSimulationToggle.onValueChanged.AddListener(delegate(bool value)
+            {
+                GameManager.Instance.ReviveSimulation = value;
+            });
+            
         }
 
         private void Start()

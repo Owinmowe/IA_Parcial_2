@@ -58,6 +58,7 @@ MonoBehaviour:
   turnsPerGenerationSlider: {fileID: 8002796964721440561}
   generationsBeforeEvolutionStartText: {fileID: 6278431576880314622}
   generationsBeforeEvolutionStartSlider: {fileID: 6712652518229948812}
+  reviveSimulationToggle: {fileID: 2291638443649353077}
 --- !u!1001 &1385166589532557949
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1134,6 +1135,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2502470988362822701, guid: 937786a8c7cd5aa429cdacb11c3870f5, type: 3}
   m_PrefabInstance: {fileID: 4132201641864622937}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2291638443649353077 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2780144262673151532, guid: 937786a8c7cd5aa429cdacb11c3870f5, type: 3}
+  m_PrefabInstance: {fileID: 4132201641864622937}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5149200085578936593 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9091964238627832392, guid: 937786a8c7cd5aa429cdacb11c3870f5, type: 3}
