@@ -215,12 +215,17 @@ namespace IA.Managers
                 if (redGenerationData.Count == 0 && greenGenerationData.Count == 0)
                 {
                     string greenTeamFilePath = "Dead Generation " + _currentGeneration + " ~ Team Green ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
-                    var bestGreenGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.GreenAgentsList);
+                    var bestGreenGenome = gameplayConfiguration.GreenAgentsList.Count > 0
+                        ? _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.GreenAgentsList)
+                        : _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.RedAgentsList);
+                    
                     GreenGenomeData.genome = bestGreenGenome;
                     SaveSystem.SaveSystem.SaveToStreamingAssets(GreenGenomeData, greenTeamFilePath);
                     
                     string redTeamFilePath = "Dead Generation " + _currentGeneration + " ~ Team Red ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
-                    var bestRedGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.RedAgentsList);
+                    var bestRedGenome = gameplayConfiguration.RedAgentsList.Count > 0
+                        ? _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.RedAgentsList)
+                        : _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.GreenAgentsList);
                     RedGenomeData.genome = bestRedGenome;
                     SaveSystem.SaveSystem.SaveToStreamingAssets(RedGenomeData, redTeamFilePath);
 
@@ -228,6 +233,7 @@ namespace IA.Managers
                     {
                         gameplayConfiguration.ClearAllAgentsAndFood();
                         StartSimulation();
+                        return;
                     }
                     
                 }
@@ -241,7 +247,7 @@ namespace IA.Managers
 
                 if (AutoSaveGreen && _currentGeneration % AutoSaveGreenGenerationsCount == 0)
                 {
-                    string greenTeamFilePath = "Generation " + _currentGeneration + " ~ Team Green ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
+                    string greenTeamFilePath = "Generation " + _currentGeneration + " ~ Team Green ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second;
                     var bestGreenGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.GreenAgentsList);
                     GreenGenomeData.genome = bestGreenGenome;
                     SaveSystem.SaveSystem.SaveToStreamingAssets(GreenGenomeData, greenTeamFilePath);
@@ -249,7 +255,7 @@ namespace IA.Managers
 
                 if (AutoSaveRed && _currentGeneration % AutoSaveRedGenerationsCount == 0)
                 {
-                    string redTeamFilePath = "Generation " + _currentGeneration + " ~ Team Red ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".genomeData";
+                    string redTeamFilePath = "Generation " + _currentGeneration + " ~ Team Red ~ " + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second;
                     var bestRedGenome = _generationManager.GetBestGenomeOfAgentsList(gameplayConfiguration.RedAgentsList);
                     RedGenomeData.genome = bestRedGenome;
                     SaveSystem.SaveSystem.SaveToStreamingAssets(RedGenomeData, redTeamFilePath);
